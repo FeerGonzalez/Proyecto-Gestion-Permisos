@@ -16,7 +16,7 @@ class UserSeeder extends Seeder
             'email' => 'empleado@demo.com',
             'password' => Hash::make('password'),
             'role' => User::ROLE_EMPLEADO,
-            'horas_disponibles' => 10,
+            'horas_disponibles' => 9,
         ]);
 
         //Usuario con Rol de supervisor
