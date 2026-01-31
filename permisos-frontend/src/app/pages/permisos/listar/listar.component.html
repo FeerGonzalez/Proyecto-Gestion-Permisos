@@ -1,1 +1,103 @@
-<p>listar works!</p>
+<div class="container">
+    <div class="max-w-6xl mx-auto bg-white p-8 rounded-xl shadow-lg">
+
+        <!-- Título -->
+        <div class="flex items-center justify-between mb-6">
+            <h2 class="text-2xl font-bold text-gray-800">
+                Mis Permisos
+            </h2>
+
+            <a
+                routerLink="/permisos/crear"
+                class="bg-indigo-600 text-white px-4 py-2 rounded-lg
+                        text-sm font-semibold hover:bg-indigo-700 transition">
+                + Solicitar permiso
+            </a>
+        </div>
+
+        <!-- Sin permisos -->
+        <!-- Estados -->
+        <div *ngIf="loading" class="loading">
+            Cargando permisos...
+        </div>
+
+        <div *ngIf="!loading && error" class="error">
+            {{ error }}
+        </div>
+
+        <div *ngIf="!loading && !error && permisos?.length === 0"class="empty">
+            No tenés permisos solicitados aún.
+        </div>
+
+        <!-- Tabla -->
+        <div class="overflow-x-auto">
+            <table class="w-full border-collapse text-sm">
+            <thead>
+                <tr class="border-b text-gray-500">
+                    <th class="py-3 text-left">Fecha</th>
+                    <th class="py-3 text-left">Horario</th>
+                    <th class="py-3 text-left">Motivo</th>
+                    <th class="py-3 text-center">Estado</th>
+                    <th class="py-3 text-center">Acciones</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <tr
+                    *ngFor="let permiso of permisos"
+                    class="border-b hover:bg-gray-50 transition"
+                >
+                <!-- Fecha -->
+                <td class="py-3">
+                    {{ permiso.fecha | date:'dd/MM/yyyy' }}
+                </td>
+
+                <!-- Horario -->
+                <td class="py-3">
+                    {{ permiso.hora_inicio }} - {{ permiso.hora_fin }}
+                </td>
+
+                <!-- Motivo -->
+                <td class="py-3 text-gray-700">
+                    {{ permiso.motivo }}
+                </td>
+
+                <!-- Estado -->
+                <td class="py-3 text-center">
+                    <span class="badge {{ permiso.estado }}">
+                        <ng-container *ngIf="permiso.estado === 'rechazado'; else estadoNormal">
+                            {{ permiso.aprobado_por === userId ? 'Cancelado' : 'Rechazado' }}
+                        </ng-container>
+
+                        <ng-template #estadoNormal>
+                            {{ permiso.estado | titlecase }}
+                        </ng-template>
+                    </span>
+                </td>
+
+                <!-- Acciones -->
+                <td class="py-3 text-center">
+                    <button
+                        *ngIf="permiso.estado === 'pendiente'"
+                        (click)="cancelar(permiso.id)"
+                        [disabled]="loading"
+                        class="btn-cancelar"
+                    >
+                        Cancelar
+                    </button>
+
+                    <span
+                        *ngIf="permiso.estado !== 'pendiente'"
+                        class="text-gray-400 text-sm"
+                    >
+                    —
+                    </span>
+                </td>
+                </tr>
+            </tbody>
+            </table>
+
+        </div>
+    </div>
+
+</div>
