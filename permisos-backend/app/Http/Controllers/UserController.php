@@ -59,4 +59,13 @@ class UserController extends Controller
 
         return response()->json(['message' => 'Usuario eliminado']);
     }
+
+    public function horasDisponibles()
+    {
+        $user = auth()->user(); // usuario logueado
+
+        return response()->json([
+            'horas_disponibles' => $user->horas_disponibles,
+        ]);
+    }
 }

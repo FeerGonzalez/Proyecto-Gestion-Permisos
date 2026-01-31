@@ -37,6 +37,18 @@ class PermisoController extends Controller
 
         $horasTotales = $inicio->floatDiffInHours($fin);
 
+        $user = Auth::user();
+
+        if (!$user->tieneHorasSuficientes($horasTotales)) {
+            return response()->json([
+                'error' => 'No tenés horas suficientes para solicitar este permiso',
+                'horas_disponibles' => $user->horas_disponibles,
+                'horas_solicitadas' => $horasTotales,
+            ], 422);
+        }
+
+        $horasTotales = $inicio->floatDiffInHours($fin);
+
         $permiso = Permiso::create([
             'user_id' => Auth::id(),
             'fecha' => $request->fecha,
@@ -49,8 +61,7 @@ class PermisoController extends Controller
 
         return response()->json($permiso, 201);
     }
-
-
+    
     public function misPermisos()
     {
         return Auth::user()->permisos;
@@ -67,13 +78,26 @@ class PermisoController extends Controller
             return response()->json(['error' => 'El permiso ya fue resuelto'], 422);
         }
 
+        $user = $permiso->usuario;
+
+        if (!$user->tieneHorasSuficientes($permiso->horas_totales)) {
+            return response()->json([
+                'error' => 'El empleado ya no tiene horas suficientes',
+            ], 422);
+        }
+
         $permiso->update([
             'estado' => Permiso::APROBADO,
             'aprobado_por' => Auth::id(),
             'aprobado_en' => now(),
         ]);
 
-        return response()->json(['message' => 'Permiso aprobado']);
+        $user->descontarHoras($permiso->horas_totales);
+
+        return response()->json([
+            'message' => 'Permiso aprobado correctamente',
+            'horas_restantes' => $user->horas_disponibles,
+        ]);
     }
 
     public function rechazar(Request $request, Permiso $permiso)
@@ -124,6 +148,22 @@ class PermisoController extends Controller
         if (!$this->validarHorarioLaboral($inicio, $fin)) {
             return response()->json([
                 'error' => 'El permiso debe estar dentro del horario laboral (07:30 a 13:30)'
+            ], 422);
+        }
+
+        $nuevasHoras = $inicio->floatDiffInHours($fin);
+
+        $user = Auth::user();
+
+        // horas "libres" = disponibles + horas del permiso actual
+        $horasDisponiblesReales = $user->horas_disponibles + $permiso->horas_totales;
+
+        if ($nuevasHoras > $horasDisponiblesReales) {
+            return response()->json([
+                'error' => 'No tenés horas suficientes para modificar este permiso',
+                'horas_disponibles' => $user->horas_disponibles,
+                'horas_originales' => $permiso->horas_totales,
+                'horas_nuevas' => $nuevasHoras,
             ], 422);
         }
 

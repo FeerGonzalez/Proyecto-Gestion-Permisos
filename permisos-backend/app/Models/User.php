@@ -27,6 +27,7 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
+        'horas_disponibles',
     ];
 
     /**
@@ -83,5 +84,16 @@ class User extends Authenticatable
     public function hasAnyRole(array $roles): bool
     {
         return in_array($this->role, $roles, true);
+    }
+
+    public function tieneHorasSuficientes(float $horas): bool
+    {
+        return $this->horas_disponibles >= $horas;
+    }
+
+    public function descontarHoras(float $horas): void
+    {
+        $this->horas_disponibles -= $horas;
+        $this->save();
     }
 }

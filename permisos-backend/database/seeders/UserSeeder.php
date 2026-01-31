@@ -16,6 +16,7 @@ class UserSeeder extends Seeder
             'email' => 'empleado@demo.com',
             'password' => Hash::make('password'),
             'role' => User::ROLE_EMPLEADO,
+            'horas_disponibles' => 10,
         ]);
 
         //Usuario con Rol de supervisor
@@ -24,6 +25,7 @@ class UserSeeder extends Seeder
             'email' => 'supervisor@demo.com',
             'password' => Hash::make('password'),
             'role' => User::ROLE_SUPERVISOR,
+            'horas_disponibles' => 10,
         ]);
 
         //Usuario con Rol de RRHH
@@ -32,6 +34,7 @@ class UserSeeder extends Seeder
             'email' => 'rrhh@demo.com',
             'password' => Hash::make('password'),
             'role' => User::ROLE_RRHH,
+            'horas_disponibles' => 10,
         ]);
     }
 }
