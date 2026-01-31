@@ -61,7 +61,7 @@ class PermisoController extends Controller
 
         return response()->json($permiso, 201);
     }
-    
+
     public function misPermisos()
     {
         return Auth::user()->permisos;
@@ -197,6 +197,33 @@ class PermisoController extends Controller
 
         return response()->json(['message' => 'Permiso eliminado correctamente']);
     }
+
+    public function cancelar(Permiso $permiso)
+    {
+        // Solo el dueño del permiso puede cancelarlo
+        if ($permiso->user_id !== Auth::id()) {
+            return response()->json(['error' => 'No autorizado'], 403);
+        }
+
+        // Solo se pueden cancelar permisos pendientes
+        if ($permiso->estado !== Permiso::PENDIENTE) {
+            return response()->json([
+                'error' => 'Solo se pueden cancelar permisos pendientes'
+            ], 422);
+        }
+
+        $permiso->update([
+            'estado' => Permiso::RECHAZADO,
+            'aprobado_por' => Auth::id(), // el propio empleado
+            'aprobado_en' => now(),
+        ]);
+
+        return response()->json([
+            'message' => 'Permiso cancelado correctamente',
+            'permiso' => $permiso
+        ]);
+    }
+
     private function validarHorarioLaboral(Carbon $inicio, Carbon $fin)
     {
         $inicioLaboral = Carbon::createFromTime(7, 30);

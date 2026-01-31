@@ -22,9 +22,10 @@ Route::middleware('auth:sanctum')->prefix('permisos')->group(function () {
     Route::post('/', [PermisoController::class, 'store']);
     Route::get('/horas-disponibles', [UserController::class, 'horasDisponibles']);
     Route::get('/mis-permisos', [PermisoController::class, 'misPermisos']);
-    Route::get('/{permiso}', [PermisoController::class, 'show'])->whereNumber('permiso');;
-    Route::put('/{permiso}', [PermisoController::class, 'update'])->whereNumber('permiso');;
-    Route::delete('/{permiso}', [PermisoController::class, 'destroy'])->whereNumber('permiso');;
+    Route::get('/{permiso}', [PermisoController::class, 'show'])->whereNumber('permiso');
+    Route::put('/{permiso}', [PermisoController::class, 'update'])->whereNumber('permiso');
+    Route::delete('/{permiso}', [PermisoController::class, 'destroy'])->whereNumber('permiso');
+    Route::post('/{permiso}/cancelar', [PermisoController::class, 'cancelar'])->whereNumber('permiso');
 });
 
 //Aprobaciones del Supervisor/RRHH
