@@ -1,0 +1,95 @@
+<div class="container">
+    <div class="max-w-xl mx-auto bg-white p-8 rounded-xl shadow-lg">
+
+        <h2 class="text-2xl font-bold text-gray-800 mb-1">
+            Solicitud de Permiso
+        </h2>
+
+        <p class="subtitle">
+            Horas disponibles:
+            <span class="badge">{{ horasDisponibles }} hs</span>
+        </p>
+
+        <form [formGroup]="form" (ngSubmit)="submit()" class="space-y-5">
+
+            <!-- Fecha -->
+            <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+                Fecha
+            </label>
+            <input
+                type="date"
+                formControlName="fecha"
+                class="w-full rounded-lg border px-4 py-2.5 text-sm
+                    focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+            />
+            <p *ngIf="form.get('fecha')?.errors?.['fechaPasada']"
+                class="text-red-500 text-xs mt-1">
+                La fecha no puede ser anterior a hoy
+            </p>
+            </div>
+
+            <!-- Horarios -->
+            <div class="time-grid grid-cols-2 gap-4">
+                <div class="gap-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                    Hora inicio
+                    </label>
+                    <input
+                    type="time"
+                    formControlName="hora_inicio"
+                    class="w-full rounded-lg border px-4 py-2.5 text-sm
+                            focus:ring-2 focus:ring-indigo-500"
+                    />
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                    Hora fin
+                    </label>
+                    <input
+                    type="time"
+                    formControlName="hora_fin"
+                    class="w-full rounded-lg border px-4 py-2.5 text-sm
+                            focus:ring-2 focus:ring-indigo-500"
+                    />
+                </div>
+            </div>
+
+            <p *ngIf="form.errors?.['horarioInvalido']" class="text-red-500 text-xs">
+                El horario debe estar entre 07:30 y 13:30 y ser válido
+            </p>
+
+            <!-- Motivo -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">
+                    Motivo
+                </label>
+                <textarea
+                    rows="3"
+                    formControlName="motivo"
+                    class="w-full rounded-lg border px-4 py-2.5 text-sm
+                        focus:ring-2 focus:ring-indigo-500"
+                ></textarea>
+
+                <p *ngIf="form.get('motivo')?.touched && form.get('motivo')?.invalid"
+                    class="text-red-500 text-xs mt-1">
+                    El motivo debe tener al menos 5 caracteres
+                </p>
+            </div>
+
+            <!-- Error general -->
+            <p *ngIf="error" class="text-red-600 text-sm font-medium">
+                {{ error }}
+            </p>
+
+            <!-- Botón -->
+            <button type="submit" class="w-full bg-indigo-600 text-white py-2.5 rounded-lg
+                    font-semibold hover:bg-indigo-700 transition">
+                Enviar solicitud
+            </button>
+        </form>
+    </div>
+
+</div>
+
