@@ -1,0 +1,47 @@
+<nav class="navbar" *ngIf="user as u">
+  <!-- IZQUIERDA -->
+  <div class="nav-left">
+    <a routerLink="/dashboard" class="brand">
+      Permisos
+    </a>
+  </div>
+
+  <!-- CENTRO -->
+  <div class="nav-center">
+    <!-- EMPLEADO -->
+    <ng-container *ngIf="u.role === 'empleado'">
+      <a routerLink="/permisos" routerLinkActive="active">Mis permisos</a>
+      <a routerLink="/permisos/crear" routerLinkActive="active">Solicitar permiso</a>
+
+      <span class="badge">
+        ⏱ {{ u.horas_disponibles }} hs
+      </span>
+    </ng-container>
+
+    <!-- SUPERVISOR / RRHH -->
+    <ng-container *ngIf="auth.hasRole(['supervisor', 'rrhh'])">
+      <a routerLink="/permisos/pendientes" routerLinkActive="active">
+        Pendientes
+      </a>
+    </ng-container>
+
+    <!-- RRHH -->
+    <ng-container *ngIf="u.role === 'rrhh'">
+      <a routerLink="/usuarios" routerLinkActive="active">
+        Usuarios
+      </a>
+    </ng-container>
+  </div>
+
+  <!-- DERECHA -->
+  <div class="nav-right">
+    <div class="user-info">
+      <span class="name">{{ u.name }}</span>
+      <span class="role">{{ u.role }}</span>
+    </div>
+
+    <button class="logout" (click)="logout()">
+      Salir
+    </button>
+  </div>
+</nav>
