@@ -1,0 +1,108 @@
+.container {
+  max-width: 1100px;
+  margin: 2.5rem auto;
+}
+
+/* Evita desfases entre thead y tbody */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+/* Columnas (thead y tbody comparten ancho) */
+.col-employee {
+  width: 18%;
+  text-align: left;
+}
+
+.col-date {
+  width: 12%;
+  text-align: left;
+}
+
+.col-time {
+  width: 16%;
+  text-align: left;
+}
+
+.col-hours {
+  width: 10%;
+}
+
+.col-reason {
+  width: 24%;
+  text-align: left;
+}
+
+.col-actions {
+  width: 20%;
+}
+
+/* Header */
+thead th {
+  padding: 12px;
+  font-weight: 600;
+  color: #6b7280;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+/* Body */
+tbody td {
+  padding: 14px 12px;
+  border-bottom: 1px solid #e5e7eb;
+  vertical-align: middle;
+}
+
+/* Botones */
+.btn-approve {
+  background: #16a34a;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-approve:hover {
+  background: #15803d;
+}
+
+.btn-reject {
+  background: #dc2626;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-reject:hover {
+  background: #b91c1c;
+}
+
+/* Estados */
+.loading,
+.error,
+.empty {
+  text-align: center;
+  padding: 2rem;
+  font-size: 0.95rem;
+}
+
+.loading {
+  color: #6b7280;
+}
+
+.error {
+  color: #b91c1c;
+  font-weight: 600;
+}
+
+.empty {
+  color: #6b7280;
+}

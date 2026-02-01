@@ -1,1 +1,93 @@
-<p>pendientes works!</p>
+<div class="container">
+  <div class="max-w-6xl mx-auto bg-white p-8 rounded-xl shadow-lg">
+
+    <!-- Título -->
+    <h2 class="text-2xl font-bold text-gray-800 mb-6">
+      Permisos Pendientes
+    </h2>
+
+    <!-- Loading -->
+    <div *ngIf="loading" class="loading">
+      Cargando permisos pendientes...
+    </div>
+
+    <!-- Error -->
+    <div *ngIf="error" class="error">
+      {{ error }}
+    </div>
+
+    <!-- Tabla -->
+    <div *ngIf="!loading && permisos.length > 0" class="overflow-x-auto">
+      <table class="w-full border-collapse text-sm">
+        <thead>
+            <tr>
+                <th class="col-employee">Empleado</th>
+                <th class="col-date">Fecha</th>
+                <th class="col-time">Horario</th>
+                <th class="col-hours text-center">Horas</th>
+                <th class="col-reason">Motivo</th>
+                <th class="col-actions text-center">Acciones</th>
+            </tr>
+        </thead>
+
+        <tbody>
+          <tr
+            *ngFor="let permiso of permisos"
+            class="border-b hover:bg-gray-50 transition"
+          >
+            <!-- Empleado -->
+            <td class="py-3">
+              {{ permiso.usuario?.name || '—' }}
+            </td>
+
+            <!-- Fecha -->
+            <td class="py-3">
+              {{ permiso.fecha | date:'dd/MM/yyyy' }}
+            </td>
+
+            <!-- Horario -->
+            <td class="py-3">
+              {{ permiso.hora_inicio }} - {{ permiso.hora_fin }}
+            </td>
+
+            <!-- Horas -->
+            <td class="py-3 text-center">
+              {{ permiso.horas_totales | number:'1.1-2' }}
+            </td>
+
+            <!-- Motivo -->
+            <td class="py-3 text-gray-700">
+              {{ permiso.motivo }}
+            </td>
+
+            <!-- Acciones -->
+            <td class="py-3 text-center space-x-2">
+              <button
+                (click)="aprobar(permiso.id)"
+                class="btn-approve"
+              >
+                Aprobar
+              </button>
+
+              <button
+                (click)="rechazar(permiso.id)"
+                class="btn-reject"
+              >
+                Rechazar
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Vacío -->
+    <div
+      *ngIf="!loading && permisos.length === 0"
+      class="empty"
+    >
+      No hay permisos pendientes 🎉
+    </div>
+
+  </div>
+</div>
