@@ -20,5 +20,12 @@ export const PERMISOS_ROUTES: Routes = [
     loadComponent: () =>
       import('./pendientes/pendientes.component')
         .then(m => m.PendientesComponent)
+  },
+  {
+    path: 'usuarios',
+    canActivate: [roleGuard(['rrhh'])],
+    loadComponent: () =>
+      import('../usuarios/usuarios.component')
+        .then(m => m.UsuariosComponent)
   }
 ];
