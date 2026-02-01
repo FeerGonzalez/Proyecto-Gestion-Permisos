@@ -9,7 +9,7 @@
   <!-- CENTRO -->
   <div class="nav-center">
     <!-- EMPLEADO -->
-    <ng-container *ngIf="u.role === 'empleado'">
+    <ng-container *ngIf="auth.hasRole(['empleado', 'supervisor', 'rrhh'])">
       <a routerLink="/permisos" routerLinkActive="active">Mis permisos</a>
       <a routerLink="/permisos/crear" routerLinkActive="active">Solicitar permiso</a>
 
