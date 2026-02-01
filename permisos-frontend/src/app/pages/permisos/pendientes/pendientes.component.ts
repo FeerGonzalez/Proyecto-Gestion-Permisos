@@ -23,13 +23,13 @@ export class PendientesComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-  if (!this.puedeAcceder()) {
-    this.error = 'No tenés permisos para acceder a esta sección';
-    return;
-  }
+    if (!this.puedeAcceder()) {
+      this.error = 'No tenés permisos para acceder a esta sección';
+      return;
+    }
 
-  this.cargarPendientes();
-}
+    this.cargarPendientes();
+  }
 
   cargarPendientes() {
     this.loading = true;
