@@ -10,7 +10,9 @@ class UserController extends Controller
 {
     public function index()
     {
-        return User::orderBy('name')->get();
+        return User::withTrashed()
+            ->orderBy('name')
+            ->get();
     }
 
     public function show(User $user)
@@ -67,5 +69,20 @@ class UserController extends Controller
         return response()->json([
             'horas_disponibles' => $user->horas_disponibles,
         ]);
+    }
+
+    public function desactivar(User $user)
+    {
+        $user->delete();
+
+        return response()->json(['message' => 'Usuario desactivado']);
+    }
+
+    public function activar($id)
+    {
+        $user = User::withTrashed()->findOrFail($id);
+        $user->restore();
+
+        return response()->json(['message' => 'Usuario activado']);
     }
 }
