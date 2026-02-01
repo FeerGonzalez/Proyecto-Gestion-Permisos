@@ -1,3 +1,5 @@
+import { User } from "./user.model";
+
 export interface Permiso {
   id: number;
   fecha: string;
@@ -7,4 +9,6 @@ export interface Permiso {
   motivo: string;
   estado: 'pendiente' | 'aprobado' | 'rechazado';
   aprobado_por?: number | null;
+  user_id: number;
+  usuario?: User;
 }
