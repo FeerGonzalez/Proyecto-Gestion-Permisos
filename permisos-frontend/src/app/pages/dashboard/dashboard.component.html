@@ -1,1 +1,79 @@
-<p>dashboard works!</p>
+<div class="dashboard">
+
+  <!-- Header -->
+  <div class="header">
+    <h1>Dashboard</h1>
+
+    <a
+      routerLink="/permisos/crear"
+      class="btn-primary"
+    >
+      + Solicitar permiso
+    </a>
+  </div>
+
+  <!-- Horas disponibles -->
+  <div class="card horas">
+    <h2>Horas disponibles</h2>
+    <p class="horas-numero">{{ horasDisponibles }}</p>
+  </div>
+
+  <!-- Estadísticas -->
+  <div class="stats">
+
+    <div class="stat">
+      <span>Total</span>
+      <strong>{{ stats.total }}</strong>
+    </div>
+
+    <div class="stat pendiente">
+      <span>Pendientes</span>
+      <strong>{{ stats.pendientes }}</strong>
+    </div>
+
+    <div class="stat aprobado">
+      <span>Aprobados</span>
+      <strong>{{ stats.aprobados }}</strong>
+    </div>
+
+    <div class="stat rechazado">
+      <span>Rechazados</span>
+      <strong>{{ stats.rechazados }}</strong>
+    </div>
+
+    <div class="stat cancelado">
+      <span>Cancelados</span>
+      <strong>{{ stats.cancelados }}</strong>
+    </div>
+
+  </div>
+
+  <!-- Estados -->
+  <div *ngIf="loading" class="estado">
+    Cargando información...
+  </div>
+
+  <div *ngIf="error" class="estado error">
+    {{ error }}
+  </div>
+
+  <!-- Pendientes -->
+  <div *ngIf="!loading && permisosPendientes.length === 0" class="estado">
+    No tenés permisos pendientes.
+  </div>
+
+  <div *ngIf="permisosPendientes.length > 0" class="card">
+    <h2>Permisos pendientes</h2>
+
+    <ul class="lista">
+      <li *ngFor="let permiso of permisosPendientes">
+        <div>
+          <strong>{{ permiso.fecha }}</strong>
+          <span class="motivo">{{ permiso.motivo }}</span>
+        </div>
+        <span class="badge pendiente">Pendiente</span>
+      </li>
+    </ul>
+  </div>
+
+</div>
