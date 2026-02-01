@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-//import { roleGuard } from '../../core/guards/role.guard';
+import { roleGuard } from '../../core/guards/role.guard';
 
 export const PERMISOS_ROUTES: Routes = [
   {
@@ -16,7 +16,7 @@ export const PERMISOS_ROUTES: Routes = [
   },
   {
     path: 'pendientes',
-    //canActivate: [roleGuard(['supervisor', 'rrhh'])],
+    canActivate: [roleGuard(['supervisor', 'rrhh'])],
     loadComponent: () =>
       import('./pendientes/pendientes.component')
         .then(m => m.PendientesComponent)
