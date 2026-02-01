@@ -3,9 +3,7 @@ import { authGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
 
-  // =====================
-  // AUTH (PÚBLICO)
-  // =====================
+  //Publico (Sin login)
   {
     path: 'auth',
     loadChildren: () =>
@@ -13,9 +11,7 @@ export const routes: Routes = [
         .then(m => m.AUTH_ROUTES)
   },
 
-  // =====================
-  // APP (PRIVADO)
-  // =====================
+  // Privado (Con login)
   {
     path: '',
     canActivate: [authGuard],
@@ -50,8 +46,6 @@ export const routes: Routes = [
     ]
   },
 
-  // =====================
-  // FALLBACK
-  // =====================
+  // Redirección
   { path: '**', redirectTo: 'dashboard' }
 ];
