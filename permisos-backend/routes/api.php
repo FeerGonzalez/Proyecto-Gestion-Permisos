@@ -6,7 +6,6 @@ use App\Http\Controllers\PermisoController;
 use App\Http\Controllers\UserController;
 
 //Autenticación
-Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logout']);
 
@@ -43,6 +42,8 @@ Route::middleware(['auth:sanctum', 'role:rrhh'])->prefix('usuarios')->group(func
     Route::get('/{user}', [UserController::class, 'show']);
     Route::put('/{user}', [UserController::class, 'update']);
     Route::delete('/{user}', [UserController::class, 'destroy']);
+    Route::patch('/{user}/desactivar', [UserController::class, 'desactivar']);
+    Route::patch('/{user}/activar', [UserController::class, 'activar']);
 });
 
 
