@@ -1,1 +1,43 @@
-<p>login works!</p>
+<div class="min-h-screen flex items-center justify-center bg-gray-100">
+  <div class="w-full max-w-md bg-white p-6 rounded-xl shadow">
+    
+    <h2 class="text-2xl font-semibold text-center mb-6">
+      Iniciar sesión
+    </h2>
+
+    <form [formGroup]="form" (ngSubmit)="submit()" class="space-y-4">
+
+      <div>
+        <label class="block text-sm mb-1">Email</label>
+        <input
+          type="email"
+          formControlName="email"
+          class="w-full border rounded-lg px-3 py-2"
+        />
+      </div>
+
+      <div>
+        <label class="block text-sm mb-1">Contraseña</label>
+        <input
+          type="password"
+          formControlName="password"
+          class="w-full border rounded-lg px-3 py-2"
+        />
+      </div>
+
+      <p *ngIf="error" class="text-red-600 text-sm">
+        {{ error }}
+      </p>
+
+      <button
+        type="submit"
+        [disabled]="loading"
+        class="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700"
+      >
+        {{ loading ? 'Ingresando...' : 'Ingresar' }}
+      </button>
+
+    </form>
+  </div>
+</div>
+
