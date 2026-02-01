@@ -1,0 +1,65 @@
+<div class="usuarios-container">
+
+  <div class="header">
+    <h2>Usuarios del sistema</h2>
+    <a
+        routerLink="/auth/register"
+        class="btn-primary"
+    >
+        Nuevo Usuario
+    </a>
+  </div>
+
+  <div *ngIf="loading">Cargando usuarios...</div>
+
+  <div class="error" *ngIf="errorMessage">
+    {{ errorMessage }}
+  </div>
+
+  <table *ngIf="!loading && usuarios.length">
+    <thead>
+      <tr>
+        <th>Nombre</th>
+        <th>Email</th>
+        <th>Rol</th>
+        <th>Estado</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let u of usuarios">
+        <td>{{ u.name }}</td>
+        <td>{{ u.email }}</td>
+        <td>
+          <span class="rol" [ngClass]="u.role">
+            {{ u.role }}
+          </span>
+        </td>
+        <td>
+            <span
+                class="estado"
+                [class.activo]="!u.deleted_at"
+                [class.inactivo]="u.deleted_at"
+            >
+                {{ u.deleted_at ? 'Inactivo' : 'Activo' }}
+            </span>
+        </td>
+        <td>
+            <label class="switch">
+                <input
+                type="checkbox"
+                [checked]="!u.deleted_at"
+                (change)="onToggleEstado(u, $event)"
+                />
+                <span class="slider"></span>
+            </label>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p *ngIf="!loading && !usuarios.length">
+    No hay usuarios registrados.
+  </p>
+
+</div>
