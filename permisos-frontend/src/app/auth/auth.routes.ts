@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { guestGuard } from '../core/guards/guest.guard';
+import { roleGuard } from '../core/guards/role.guard';
 
 export const AUTH_ROUTES: Routes = [
   {
@@ -11,6 +12,7 @@ export const AUTH_ROUTES: Routes = [
   },
   {
     path: 'register',
+    canActivate: [roleGuard(['rrhh'])],
     loadComponent: () =>
       import('./register/register.component')
         .then(m => m.RegisterComponent)
