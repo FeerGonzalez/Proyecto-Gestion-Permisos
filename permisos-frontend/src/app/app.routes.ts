@@ -46,6 +46,12 @@ export const routes: Routes = [
     ]
   },
 
+  {
+    path: 'login',
+    redirectTo: 'auth/login',
+    pathMatch: 'full'
+  },
+
   // Redirección
   { path: '**', redirectTo: 'dashboard' }
 ];
