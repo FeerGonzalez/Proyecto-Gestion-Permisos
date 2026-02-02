@@ -61,7 +61,9 @@
             </td>
 
             <!-- Acciones -->
-            <td class="py-3 text-center space-x-2">
+            <td class="py-3 text-center space-x-2"
+              *ngIf="puedeEvaluar(permiso)">
+
               <button
                 (click)="aprobar(permiso.id)"
                 class="btn-approve"
@@ -75,6 +77,14 @@
               >
                 Rechazar
               </button>
+
+            </td>
+
+            <td class="py-3 text-center"
+              *ngIf="!puedeEvaluar(permiso)">
+              <span class="badge-own">
+                No podés evaluar tu propio permiso
+              </span>
             </td>
           </tr>
         </tbody>

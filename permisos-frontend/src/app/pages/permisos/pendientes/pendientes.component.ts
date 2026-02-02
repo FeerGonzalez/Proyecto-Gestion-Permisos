@@ -16,6 +16,7 @@ export class PendientesComponent implements OnInit {
   permisos: Permiso[] = [];
   loading = false;
   error = '';
+  usuarioId!: number;
 
   constructor(
     private permisoService: PermisoService,
@@ -27,6 +28,9 @@ export class PendientesComponent implements OnInit {
       this.error = 'No tenés permisos para acceder a esta sección';
       return;
     }
+
+    const user = this.authService.getUser();
+    this.usuarioId = user.id;
 
     this.cargarPendientes();
   }
@@ -84,4 +88,9 @@ export class PendientesComponent implements OnInit {
   puedeAcceder(): boolean {
     return this.authService.hasRole(['supervisor', 'rrhh']);
   }
+
+  puedeEvaluar(permiso: Permiso): boolean {
+    return permiso.user_id !== this.usuarioId;
+  }
+
 }
