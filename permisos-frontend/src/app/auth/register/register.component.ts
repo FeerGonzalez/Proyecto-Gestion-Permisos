@@ -1,13 +1,13 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, Validators, ReactiveFormsModule, FormGroup } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule ],
   templateUrl: './register.component.html',
   styleUrl: './register.component.css'
 })
@@ -16,14 +16,14 @@ export class RegisterComponent {
   loading = false;
   errorMessage = '';
   successMessage = '';
-  form;
+  form: FormGroup;
 
   private apiUrl = 'http://localhost:8000/api/usuarios';
 
   constructor(
     private fb: FormBuilder,
     private http: HttpClient,
-    private router: Router
+    private router: Router,
   ) {
     this.form = this.fb.group({
       name: ['', Validators.required],
@@ -61,5 +61,9 @@ export class RegisterComponent {
         }
       }
     });
+  }
+
+  volver() {
+    this.router.navigate(['/permisos/usuarios']);
   }
 }

@@ -44,9 +44,19 @@
       {{ successMessage }}
     </div>
 
-    <button type="submit" [disabled]="loading">
-      {{ loading ? 'Registrando...' : 'Registrar usuario' }}
-    </button>
+    <div class="actions">
+        <button
+            type="button"
+            class="btn-secondary"
+            (click)="volver()"
+        >
+            Volver
+        </button>
+
+        <button type="submit" [disabled]="loading" class="btn-primary">
+            {{ loading ? 'Registrando...' : 'Registrar usuario' }}
+        </button>
+    </div>
 
   </form>
 </div>
