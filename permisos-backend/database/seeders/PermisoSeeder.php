@@ -34,8 +34,8 @@ class PermisoSeeder extends Seeder
             'horas_totales' => 1.0,
             'motivo' => 'Consulta médica',
             'estado' => 'aprobado',
-            'aprobado_por' => $supervisor->id,
-            'aprobado_en' => Carbon::now()->subDays(4),
+            'examinado_por' => $supervisor->id,
+            'examinado_en' => Carbon::now()->subDays(4),
         ]);
 
         // Permiso rechazado
@@ -47,8 +47,8 @@ class PermisoSeeder extends Seeder
             'horas_totales' => 1.0,
             'motivo' => 'Asunto personal',
             'estado' => 'rechazado',
-            'aprobado_por' => $supervisor->id,
-            'aprobado_en' => Carbon::now()->subDays(9),
+            'examinado_por' => $supervisor->id,
+            'examinado_en' => Carbon::now()->subDays(9),
         ]);
     }
 }
