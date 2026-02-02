@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { UserService } from '../../core/services/user.service';
+import { AuthService } from '../../core/services/auth.service';
 import { User } from '../../core/models/user.model';
 
 @Component({
@@ -16,13 +17,16 @@ export class UsuariosComponent implements OnInit {
   usuarios: User[] = [];
   loading = true;
   errorMessage = '';
+  usuarioActual!: User;
 
   constructor(
     private userService: UserService,
-    private router: Router
+    private router: Router,
+    private authService: AuthService,
   ) {}
 
   ngOnInit(): void {
+    this.usuarioActual = this.authService.getUser();
     this.cargarUsuarios();
   }
 
@@ -60,5 +64,9 @@ export class UsuariosComponent implements OnInit {
         user.deleted_at = new Date().toISOString();
       });
     }
+  }
+
+  esUsuarioActual(u: User): boolean {
+    return this.usuarioActual?.id === u.id;
   }
 }
