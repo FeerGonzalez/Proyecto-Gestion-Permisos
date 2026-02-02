@@ -57,4 +57,9 @@ class Permiso extends Model
         $this->estado_id = $estado->id; // DB normalizada
     }
 
+    public function puedeSerAprobadoPor(User $user): bool
+    {
+        return $this->usuario_id !== $user->id;
+    }
+
 }

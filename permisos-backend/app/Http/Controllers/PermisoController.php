@@ -62,6 +62,12 @@ class PermisoController extends Controller
 
         $user = $permiso->usuario;
 
+        if (! $permiso->puedeSerAprobadoPor(Auth::user())) {
+            return response()->json([
+                'error' => 'No puedes aprobar tu propio permiso'
+            ], 422);
+        }
+
         if (!$user->tieneHorasSuficientes($permiso->horas_totales)) {
             return response()->json(['error' => 'El empleado ya no tiene horas suficientes'], 422);
         }
