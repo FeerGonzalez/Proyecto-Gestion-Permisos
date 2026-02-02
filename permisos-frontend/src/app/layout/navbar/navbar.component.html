@@ -12,10 +12,6 @@
     <ng-container *ngIf="auth.hasRole(['empleado', 'supervisor', 'rrhh'])">
       <a routerLink="/permisos" routerLinkActive="active">Mis permisos</a>
       <a routerLink="/permisos/crear" routerLinkActive="active">Solicitar permiso</a>
-
-      <span class="badge">
-        ⏱ {{ u.horas_disponibles }} hs
-      </span>
     </ng-container>
 
     <!-- SUPERVISOR / RRHH -->
