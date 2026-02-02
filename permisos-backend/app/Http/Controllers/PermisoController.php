@@ -6,6 +6,7 @@ use App\Models\Permiso;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\EstadoPermiso;
 
 class PermisoController extends Controller
 {
@@ -49,15 +50,17 @@ class PermisoController extends Controller
 
         $horasTotales = $inicio->floatDiffInHours($fin);
 
-        $permiso = Permiso::create([
+        $permiso = new Permiso([
             'user_id' => Auth::id(),
             'fecha' => $request->fecha,
             'hora_inicio' => $request->hora_inicio,
             'hora_fin' => $request->hora_fin,
             'horas_totales' => $horasTotales,
             'motivo' => $request->motivo,
-            'estado' => Permiso::PENDIENTE,
         ]);
+
+        $permiso->setEstado(EstadoPermiso::PENDIENTE);
+        $permiso->save();
 
         return response()->json($permiso, 201);
     }
@@ -69,28 +72,27 @@ class PermisoController extends Controller
 
     public function pendientes()
     {
-        return Permiso::pendientes()->with('usuario')->get();
+        return Permiso::with('usuario')
+            ->where('estado', 'pendiente')
+            ->get();
     }
 
     public function aprobar(Permiso $permiso)
     {
-        if ($permiso->estado !== Permiso::PENDIENTE) {
+        if (!$permiso->esPendiente()) {
             return response()->json(['error' => 'El permiso ya fue resuelto'], 422);
         }
 
         $user = $permiso->usuario;
 
         if (!$user->tieneHorasSuficientes($permiso->horas_totales)) {
-            return response()->json([
-                'error' => 'El empleado ya no tiene horas suficientes',
-            ], 422);
+            return response()->json(['error' => 'El empleado ya no tiene horas suficientes'], 422);
         }
 
-        $permiso->update([
-            'estado' => Permiso::APROBADO,
-            'aprobado_por' => Auth::id(),
-            'aprobado_en' => now(),
-        ]);
+        $permiso->setEstado(EstadoPermiso::APROBADO);
+        $permiso->examinado_por = Auth::id();
+        $permiso->examinado_en = now();
+        $permiso->save();
 
         $user->descontarHoras($permiso->horas_totales);
 
@@ -102,15 +104,14 @@ class PermisoController extends Controller
 
     public function rechazar(Request $request, Permiso $permiso)
     {
-        if ($permiso->estado !== Permiso::PENDIENTE) {
+        if (!$permiso->esPendiente()) {
             return response()->json(['error' => 'El permiso ya fue resuelto'], 422);
         }
 
-        $permiso->update([
-            'estado' => Permiso::RECHAZADO,
-            'aprobado_por' => Auth::id(),
-            'aprobado_en' => now(),
-        ]);
+        $permiso->setEstado(EstadoPermiso::RECHAZADO);
+        $permiso->examinado_por = Auth::id();
+        $permiso->examinado_en = now();
+        $permiso->save();
 
         return response()->json(['message' => 'Permiso rechazado']);
     }
@@ -205,18 +206,14 @@ class PermisoController extends Controller
             return response()->json(['error' => 'No autorizado'], 403);
         }
 
-        // Solo se pueden cancelar permisos pendientes
-        if ($permiso->estado !== Permiso::PENDIENTE) {
-            return response()->json([
-                'error' => 'Solo se pueden cancelar permisos pendientes'
-            ], 422);
+        if (!$permiso->esPendiente()) {
+            return response()->json(['error' => 'Solo se pueden cancelar permisos pendientes'], 422);
         }
 
-        $permiso->update([
-            'estado' => Permiso::RECHAZADO,
-            'aprobado_por' => Auth::id(), // el propio empleado
-            'aprobado_en' => now(),
-        ]);
+        $permiso->setEstado(EstadoPermiso::CANCELADO);
+        $permiso->examinado_por = Auth::id(); // el propio empleado
+        $permiso->examinado_en = now();
+        $permiso->save();
 
         return response()->json([
             'message' => 'Permiso cancelado correctamente',
