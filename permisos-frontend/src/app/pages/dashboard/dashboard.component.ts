@@ -65,22 +65,22 @@ export class DashboardComponent implements OnInit {
   }
 
   private calcularStats() {
-    const user = this.authService.getUser();
-
     this.stats.total = this.permisos.length;
-    this.stats.pendientes = this.permisos.filter(p => p.estado === 'pendiente').length;
-    this.stats.aprobados = this.permisos.filter(p => p.estado === 'aprobado').length;
 
-    this.stats.cancelados = this.permisos.filter(
-      p =>
-        p.estado === 'rechazado' &&
-        p.aprobado_por === user?.id
+    this.stats.pendientes = this.permisos.filter(
+      p => p.estado === 'pendiente'
+    ).length;
+
+    this.stats.aprobados = this.permisos.filter(
+      p => p.estado === 'aprobado'
     ).length;
 
     this.stats.rechazados = this.permisos.filter(
-      p =>
-        p.estado === 'rechazado' &&
-        p.aprobado_por !== user?.id
+      p => p.estado === 'rechazado'
+    ).length;
+
+    this.stats.cancelados = this.permisos.filter(
+      p => p.estado === 'cancelado'
     ).length;
   }
 
