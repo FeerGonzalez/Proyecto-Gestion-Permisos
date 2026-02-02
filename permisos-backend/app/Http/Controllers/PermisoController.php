@@ -12,58 +12,35 @@ class PermisoController extends Controller
 {
     public function index()
     {
-        return Permiso::with('usuario', 'aprobadoPor')
+        return Permiso::with('usuario', 'examinadoPor')
             ->orderBy('created_at', 'desc')
             ->get();
     }
 
-    public function store(Request $request)
-    {
-        $request->validate([
-            'fecha' => 'required|date',
-            'hora_inicio' => 'required|date_format:H:i',
-            'hora_fin' => 'required|date_format:H:i|after:hora_inicio',
-            'motivo' => 'required|string',
-        ]);
+    public function store(Request $request){
+        $data = $this->validarYCalcularDatos($request);
 
-        // Calcular horas totales
-        $inicio = Carbon::createFromFormat('H:i', $request->hora_inicio);
-        $fin = Carbon::createFromFormat('H:i', $request->hora_fin);
-
-        if (!$this->validarHorarioLaboral($inicio, $fin)) {
-            return response()->json([
-                'error' => 'El permiso debe estar dentro del horario laboral (07:30 a 13:30)'
-            ], 422);
-        }
-
-        $horasTotales = $inicio->floatDiffInHours($fin);
-
-        $user = Auth::user();
-
-        if (!$user->tieneHorasSuficientes($horasTotales)) {
+        if (!$data['user']->tieneHorasSuficientes($data['horas_totales'])) {
             return response()->json([
                 'error' => 'No tenés horas suficientes para solicitar este permiso',
-                'horas_disponibles' => $user->horas_disponibles,
-                'horas_solicitadas' => $horasTotales,
+                'horas_disponibles' => $data['user']->horas_disponibles,
+                'horas_solicitadas' => $data['horas_totales'],
             ], 422);
         }
 
-        $horasTotales = $inicio->floatDiffInHours($fin);
-
-        $permiso = new Permiso([
-            'user_id' => Auth::id(),
+        $permiso = Permiso::create([
+            'user_id' => $data['user']->id,
             'fecha' => $request->fecha,
             'hora_inicio' => $request->hora_inicio,
             'hora_fin' => $request->hora_fin,
-            'horas_totales' => $horasTotales,
+            'horas_totales' => $data['horas_totales'],
             'motivo' => $request->motivo,
+            'estado' => 'pendiente',
         ]);
-
-        $permiso->setEstado(EstadoPermiso::PENDIENTE);
-        $permiso->save();
 
         return response()->json($permiso, 201);
     }
+
 
     public function misPermisos()
     {
@@ -123,7 +100,7 @@ class PermisoController extends Controller
             return response()->json(['error' => 'No autorizado'], 403);
         }
 
-        return $permiso->load('usuario', 'aprobadoPor');
+        return $permiso->load('usuario', 'examinadoPor');
     }
 
     public function update(Request $request, Permiso $permiso)
@@ -132,49 +109,31 @@ class PermisoController extends Controller
             return response()->json(['error' => 'No autorizado'], 403);
         }
 
-        if ($permiso->estado !== Permiso::PENDIENTE) {
-            return response()->json(['error' => 'Solo se pueden editar permisos pendientes'], 422);
-        }
-
-        $request->validate([
-            'fecha' => 'required|date',
-            'hora_inicio' => 'required|date_format:H:i',
-            'hora_fin' => 'required|date_format:H:i|after:hora_inicio',
-            'motivo' => 'required|string',
-        ]);
-
-        $inicio = Carbon::createFromFormat('H:i', $request->hora_inicio);
-        $fin = Carbon::createFromFormat('H:i', $request->hora_fin);
-
-        if (!$this->validarHorarioLaboral($inicio, $fin)) {
+        if ($permiso->estado !== 'pendiente') {
             return response()->json([
-                'error' => 'El permiso debe estar dentro del horario laboral (07:30 a 13:30)'
+                'error' => 'Solo se pueden editar permisos pendientes'
             ], 422);
         }
 
-        $nuevasHoras = $inicio->floatDiffInHours($fin);
+        $data = $this->validarYCalcularDatos($request);
 
-        $user = Auth::user();
+        $horasDisponiblesReales =
+            $data['user']->horas_disponibles + $permiso->horas_totales;
 
-        // horas "libres" = disponibles + horas del permiso actual
-        $horasDisponiblesReales = $user->horas_disponibles + $permiso->horas_totales;
-
-        if ($nuevasHoras > $horasDisponiblesReales) {
+        if ($data['horas_totales'] > $horasDisponiblesReales) {
             return response()->json([
                 'error' => 'No tenés horas suficientes para modificar este permiso',
-                'horas_disponibles' => $user->horas_disponibles,
+                'horas_disponibles' => $data['user']->horas_disponibles,
                 'horas_originales' => $permiso->horas_totales,
-                'horas_nuevas' => $nuevasHoras,
+                'horas_nuevas' => $data['horas_totales'],
             ], 422);
         }
-
-        $horasTotales = $fin->floatDiffInHours($inicio);
 
         $permiso->update([
             'fecha' => $request->fecha,
             'hora_inicio' => $request->hora_inicio,
             'hora_fin' => $request->hora_fin,
-            'horas_totales' => $horasTotales,
+            'horas_totales' => $data['horas_totales'],
             'motivo' => $request->motivo,
         ]);
 
@@ -184,19 +143,25 @@ class PermisoController extends Controller
         ]);
     }
 
+
+
     public function destroy(Permiso $permiso)
     {
         if ($permiso->user_id !== Auth::id()) {
             return response()->json(['error' => 'No autorizado'], 403);
         }
 
-        if ($permiso->estado !== Permiso::PENDIENTE) {
-            return response()->json(['error' => 'No se puede eliminar un permiso ya resuelto'], 422);
+        if ($permiso->estado !== 'pendiente') {
+            return response()->json([
+                'error' => 'No se puede eliminar un permiso ya resuelto'
+            ], 422);
         }
 
         $permiso->delete();
 
-        return response()->json(['message' => 'Permiso eliminado correctamente']);
+        return response()->json([
+            'message' => 'Permiso eliminado correctamente'
+        ]);
     }
 
     public function cancelar(Permiso $permiso)
@@ -228,5 +193,33 @@ class PermisoController extends Controller
 
         return $inicio->greaterThanOrEqualTo($inicioLaboral)
             && $fin->lessThanOrEqualTo($finLaboral);
+    }
+
+    private function validarYCalcularDatos(Request $request): array
+    {
+        $request->validate([
+            'fecha' => 'required|date',
+            'hora_inicio' => 'required|date_format:H:i',
+            'hora_fin' => 'required|date_format:H:i|after:hora_inicio',
+            'motivo' => 'required|string',
+        ]);
+
+        $inicio = Carbon::createFromFormat('H:i', $request->hora_inicio);
+        $fin = Carbon::createFromFormat('H:i', $request->hora_fin);
+
+        if (!$this->validarHorarioLaboral($inicio, $fin)) {
+            abort(
+                response()->json([
+                    'error' => 'El permiso debe estar dentro del horario laboral (07:30 a 13:30)'
+                ], 422)
+            );
+        }
+
+        return [
+            'inicio' => $inicio,
+            'fin' => $fin,
+            'horas_totales' => $inicio->floatDiffInHours($fin),
+            'user' => Auth::user(),
+        ];
     }
 }
