@@ -25,7 +25,15 @@ export class NavbarComponent {
   }
 
   logout() {
-    this.auth.logout();
-    this.router.navigate(['/auth/login']);
+    this.auth.logout().subscribe({
+      next: () => {
+        this.router.navigate(['/auth/login']);
+      },
+      error: () => {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        this.router.navigate(['/auth/login']);
+      }
+    });
   }
 }

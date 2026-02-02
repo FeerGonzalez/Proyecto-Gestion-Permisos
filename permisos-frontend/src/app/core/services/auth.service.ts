@@ -20,9 +20,19 @@ export class AuthService {
   }
 
   logout() {
+    return this.http.post(`${this.apiUrl}/logout`, {}).pipe(
+      tap(() => {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+      })
+    );
+  }
+  /*
+  logout() {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
   }
+    */
 
   getToken(): string | null {
     return localStorage.getItem('token');
