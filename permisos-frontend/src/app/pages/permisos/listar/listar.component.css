@@ -87,6 +87,11 @@ tbody tr:hover {
   color: #991b1b;
 }
 
+.badge.cancelado {
+  background: #e5e7eb;
+  color: #374151;
+}
+
 /* Acciones */
 .btn-cancelar {
   background: none;

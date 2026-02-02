@@ -62,13 +62,7 @@
                 <!-- Estado -->
                 <td class="py-3 text-center">
                     <span class="badge {{ permiso.estado }}">
-                        <ng-container *ngIf="permiso.estado === 'rechazado'; else estadoNormal">
-                            {{ permiso.aprobado_por === userId ? 'Cancelado' : 'Rechazado' }}
-                        </ng-container>
-
-                        <ng-template #estadoNormal>
-                            {{ permiso.estado | titlecase }}
-                        </ng-template>
+                        {{ permiso.estado | titlecase }}
                     </span>
                 </td>
 
