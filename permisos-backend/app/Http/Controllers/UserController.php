@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
@@ -55,13 +56,6 @@ class UserController extends Controller
         ]);
     }
 
-    public function destroy(User $user)
-    {
-        $user->delete();
-
-        return response()->json(['message' => 'Usuario eliminado']);
-    }
-
     public function horasDisponibles()
     {
         $user = auth()->user(); // usuario logueado
@@ -73,6 +67,12 @@ class UserController extends Controller
 
     public function desactivar(User $user)
     {
+        if ($user->id === Auth::id()) {
+            return response()->json([
+                'error' => 'No podés desactivar tu propio usuario'
+            ], 422);
+        }
+
         $user->delete();
 
         return response()->json(['message' => 'Usuario desactivado']);
