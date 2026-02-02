@@ -27,12 +27,6 @@ export class AuthService {
       })
     );
   }
-  /*
-  logout() {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-  }
-    */
 
   getToken(): string | null {
     return localStorage.getItem('token');
