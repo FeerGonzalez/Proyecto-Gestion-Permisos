@@ -15,6 +15,8 @@ import { CommonModule } from '@angular/common';
   styleUrl: './navbar.component.css'
 })
 export class NavbarComponent {
+  menuOpen = false;
+
   constructor(
     public auth: AuthService,
     private router: Router

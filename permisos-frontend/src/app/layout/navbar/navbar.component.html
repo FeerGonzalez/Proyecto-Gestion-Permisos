@@ -1,4 +1,5 @@
 <nav class="navbar" *ngIf="user as u">
+
   <!-- IZQUIERDA -->
   <div class="nav-left">
     <a routerLink="/dashboard" class="brand">
@@ -6,17 +7,31 @@
     </a>
   </div>
 
+  <!-- BOTÓN HAMBURGUESA (mobile) -->
+  <button class="menu-toggle" (click)="menuOpen = !menuOpen">
+    ☰
+  </button>
+
   <!-- CENTRO -->
-  <div class="nav-center">
+  <div class="nav-center" [class.open]="menuOpen">
+
     <!-- EMPLEADO -->
     <ng-container *ngIf="auth.hasRole(['empleado', 'supervisor', 'rrhh'])">
-      <a routerLink="/permisos" routerLinkActive="active">Mis permisos</a>
-      <a routerLink="/permisos/crear" routerLinkActive="active">Solicitar permiso</a>
+      <a routerLink="/permisos" routerLinkActive="active" (click)="menuOpen = false">
+        Mis permisos
+      </a>
+      <a routerLink="/permisos/crear" routerLinkActive="active" (click)="menuOpen = false">
+        Solicitar permiso
+      </a>
     </ng-container>
 
     <!-- SUPERVISOR / RRHH -->
     <ng-container *ngIf="auth.hasRole(['supervisor', 'rrhh'])">
-      <a routerLink="/permisos/pendientes" routerLinkActive="active">
+      <a
+        routerLink="/permisos/pendientes"
+        routerLinkActive="active"
+        (click)="menuOpen = false"
+      >
         Pendientes
       </a>
     </ng-container>
@@ -26,10 +41,12 @@
       <a
         routerLink="/permisos/usuarios"
         routerLinkActive="active"
+        (click)="menuOpen = false"
       >
         Usuarios
       </a>
     </ng-container>
+
   </div>
 
   <!-- DERECHA -->
@@ -43,4 +60,5 @@
       Salir
     </button>
   </div>
+
 </nav>
