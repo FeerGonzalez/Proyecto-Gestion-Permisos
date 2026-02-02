@@ -68,6 +68,14 @@ Consistent JSON Error Handling
 
 El módulo de permisos implementa un flujo de negocio basado en estados, con validaciones de horario laboral, disponibilidad de 	horas y control de aprobación por roles autorizados.
 
+<h3>Grafico Representativo</h3>
+
+Grafico representativo de la estructura interna del proyecto
+<br></br>
+
+<img width="911" height="842" alt="BackEnd Diagrama" src="https://github.com/user-attachments/assets/fc7191d2-e126-497a-bbc9-ab4883cc99d8" />
+
+<br></br>
 <h3>Observaciones</h3>
 
   - Para el registro de usuarios se tuvo en cuenta que solamente el rol de RRHH puede crear nuevos usuarios.
