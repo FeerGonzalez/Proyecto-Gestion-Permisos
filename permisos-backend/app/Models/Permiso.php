@@ -14,27 +14,47 @@ class Permiso extends Model
         'horas_totales',
         'motivo',
         'estado',
-        'aprobado_por',
-        'aprobado_en',
+        'estado_id',
+        'examinado_por',
+        'examinado_en',
     ];
 
-    public const PENDIENTE = 'pendiente';
-    public const APROBADO  = 'aprobado';
-    public const RECHAZADO = 'rechazado';
-
+    //Relaciones
     public function usuario()
     {
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    public function aprobadoPor()
+    public function examinadoPor()
     {
-        return $this->belongsTo(User::class, 'aprobado_por');
+        return $this->belongsTo(User::class, 'examinado_por');
     }
 
+    public function estadoRel()
+    {
+        return $this->belongsTo(EstadoPermiso::class, 'estado_id');
+    }
+
+    //Scope
     public function scopePendientes($query)
     {
-        return $query->where('estado', self::PENDIENTE);
+        return $query->whereHas('estadoRel', function ($q) {
+            $q->where('nombre', EstadoPermiso::PENDIENTE);
+        });
+    }
+
+    //Helpers
+    public function esPendiente(): bool
+    {
+        return $this->estado === EstadoPermiso::PENDIENTE;
+    }
+
+    public function setEstado(string $nombreEstado): void
+    {
+        $estado = EstadoPermiso::where('nombre', $nombreEstado)->firstOrFail();
+
+        $this->estado = $nombreEstado; // FE
+        $this->estado_id = $estado->id; // DB normalizada
     }
 
 }
