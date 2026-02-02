@@ -26,7 +26,7 @@ class AuthController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'role' => User::ROLE_EMPLEADO, // 🔒 siempre empleado
+            'role' => User::ROLE_EMPLEADO,
         ]);
 
         $token = $user->createToken('angular-token')->plainTextToken;

@@ -62,7 +62,7 @@ class User extends Authenticatable
     // Permisos aprobados/rechazados por el usuario (supervisor / rrhh)
     public function permisosAprobados()
     {
-        return $this->hasMany(Permiso::class, 'aprobado_por');
+        return $this->hasMany(Permiso::class, 'examinado_por');
     }
 
     //Helpers
