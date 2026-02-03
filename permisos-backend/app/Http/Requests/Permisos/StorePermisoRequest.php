@@ -2,10 +2,13 @@
 
 namespace App\Http\Requests\Permisos;
 
+use App\Http\Requests\Traits\HasPermisoTimeMethods;
 use Illuminate\Foundation\Http\FormRequest;
-use Carbon\Carbon;
+
 class StorePermisoRequest extends FormRequest
 {
+    use HasPermisoTimeMethods;
+
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -22,25 +25,11 @@ class StorePermisoRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'fecha' => 'required|date',
+            'fecha' => 'required|date|after_or_equal:today',
             'hora_inicio' => 'required|date_format:H:i',
             'hora_fin' => 'required|date_format:H:i|after:hora_inicio',
             'motivo' => 'required|string|max:500',
         ];
     }
-
-    public function getInicio(): Carbon
-    {
-        return Carbon::createFromFormat('H:i', $this->hora_inicio);
-    }
-
-    public function getFin(): Carbon
-    {
-        return Carbon::createFromFormat('H:i', $this->hora_fin);
-    }
-
-    public function horasTotales(): float
-    {
-        return $this->getInicio()->floatDiffInHours($this->getFin());
-    }
 }
+
