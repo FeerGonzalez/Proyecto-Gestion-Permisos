@@ -183,6 +183,24 @@ class PermisoController extends Controller
         ]);
     }
 
+    public function gestionadosPorMi()
+    {
+        $userId = Auth::id();
+
+        $permisos = Permiso::with('usuario', 'estadoRel')
+            ->where('examinado_por', $userId)
+            ->whereHas('estadoRel', function ($q) {
+                $q->whereIn('nombre', [
+                    EstadoPermiso::APROBADO,
+                    EstadoPermiso::RECHAZADO,
+                ]);
+            })
+            ->orderByDesc('examinado_en')
+            ->get();
+
+        return PermisoResource::collection($permisos);
+    }
+
     public function cancelar(Permiso $permiso)
     {
         // Solo el dueño del permiso puede cancelarlo
