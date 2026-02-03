@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\EstadoPermiso;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
@@ -21,9 +22,9 @@ class EstadosPermisoSeeder extends Seeder
         ];
 
         foreach ($estados as $estado) {
-            DB::table('estados_permiso')->updateOrInsert(
+            EstadoPermiso::updateOrCreate(
                 ['nombre' => $estado],
-                ['created_at' => now(), 'updated_at' => now()]
+                []
             );
         }
     }
