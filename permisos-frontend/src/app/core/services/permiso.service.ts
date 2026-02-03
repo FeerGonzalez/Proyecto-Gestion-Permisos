@@ -11,10 +11,10 @@ export class PermisoService {
   constructor(private http: HttpClient) {}
 
   misPermisos() {
-  return this.http.get<ApiResponse<Permiso[]>>(
-    `${this.apiUrl}/mis-permisos`
-  );
-}
+    return this.http.get<ApiResponse<Permiso[]>>(
+      `${this.apiUrl}/mis-permisos`
+    );
+  }
 
   crear(data: any) {
     return this.http.post(this.apiUrl, data);
@@ -41,5 +41,11 @@ export class PermisoService {
 
   cancelar(id: number) {
     return this.http.post(`${this.apiUrl}/${id}/cancelar`, {});
+  }
+
+  gestionadosPorMi() {
+    return this.http.get<ApiResponse<Permiso[]>>(
+      `${this.apiUrl}/gestionados`
+    );
   }
 }
