@@ -13,7 +13,6 @@ class Permiso extends Model
         'hora_fin',
         'horas_totales',
         'motivo',
-        'estado',
         'estado_id',
         'examinado_por',
         'examinado_en',
@@ -35,14 +34,6 @@ class Permiso extends Model
         return $this->belongsTo(EstadoPermiso::class, 'estado_id');
     }
 
-    //Scope
-    public function scopePendientes($query)
-    {
-        return $query->whereHas('estadoRel', function ($q) {
-            $q->where('nombre', EstadoPermiso::PENDIENTE);
-        });
-    }
-
     //Helpers
     public function esPendiente(): bool
     {
@@ -52,9 +43,7 @@ class Permiso extends Model
     public function setEstado(string $nombreEstado): void
     {
         $estado = EstadoPermiso::where('nombre', $nombreEstado)->firstOrFail();
-
-        $this->estado = $nombreEstado; // FE
-        $this->estado_id = $estado->id; // DB normalizada
+        $this->estado_id = $estado->id;
     }
 
     public function puedeSerAprobadoPor(User $user): bool
