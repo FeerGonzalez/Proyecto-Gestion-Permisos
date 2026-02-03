@@ -15,7 +15,7 @@ class PermisoController extends Controller
 {
     public function index()
     {
-        $permisos = Permiso::with('usuario', 'examinadoPor')
+        $permisos = Permiso::with('usuario', 'examinadoPor', 'estadoRel')
             ->orderBy('created_at', 'desc')
             ->get();
 
@@ -73,7 +73,7 @@ class PermisoController extends Controller
 
     public function pendientes()
     {
-        $permisos = Permiso::with('usuario')
+        $permisos = Permiso::with('usuario', 'estadoRel')
             ->whereHas('estadoRel', function ($q) {
                 $q->where('nombre', EstadoPermiso::PENDIENTE);
             })
