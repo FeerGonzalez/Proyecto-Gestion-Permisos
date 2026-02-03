@@ -60,8 +60,10 @@ export class UsuariosComponent implements OnInit {
 
     // QUIERE desactivar
     if (!checked && !user.deleted_at) {
-      this.userService.desactivar(user.id).subscribe(() => {
-        user.deleted_at = new Date().toISOString();
+      this.userService.desactivar(user.id).subscribe({
+        next: res => {
+          console.log(res.message);
+        }
       });
     }
   }
