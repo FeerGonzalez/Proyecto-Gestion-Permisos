@@ -1,1 +1,47 @@
-<p>perfil works!</p>
+<div class="perfil">
+
+  <h2>Mi perfil</h2>
+
+  <!-- EMAIL -->
+  <div class="card">
+    <h3>Actualizar email</h3>
+
+    <form (ngSubmit)="actualizarEmail()">
+      <label>Email</label>
+      <input
+        type="email"
+        [(ngModel)]="email"
+        name="email"
+        required
+      />
+
+      <button type="submit" [disabled]="loading">
+        Guardar cambios
+      </button>
+    </form>
+  </div>
+
+  <!-- PASSWORD -->
+  <div class="card">
+    <h3>Cambiar contraseña</h3>
+
+    <form (ngSubmit)="cambiarPassword()">
+      <label>Contraseña actual</label>
+      <input type="password" [(ngModel)]="currentPassword" name="currentPassword" required />
+
+      <label>Nueva contraseña</label>
+      <input type="password" [(ngModel)]="password" name="password" required />
+
+      <label>Confirmar contraseña</label>
+      <input type="password" [(ngModel)]="passwordConfirm" name="passwordConfirm" required />
+
+      <button type="submit" [disabled]="loading">
+        Cambiar contraseña
+      </button>
+    </form>
+  </div>
+
+  <p *ngIf="message" class="success">{{ message }}</p>
+  <p *ngIf="error" class="error">{{ error }}</p>
+
+</div>
