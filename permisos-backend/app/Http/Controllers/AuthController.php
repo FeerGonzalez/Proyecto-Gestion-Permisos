@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
+use App\Http\Resources\Dto\UserResource;
 
 class AuthController extends Controller
 {
@@ -34,7 +35,7 @@ class AuthController extends Controller
         return response()->json([
             'message' => 'Usuario registrado correctamente',
             'token' => $token,
-            'user' => $user,
+            'user' => new UserResource($user),
         ], 201);
     }
 
@@ -57,7 +58,7 @@ class AuthController extends Controller
 
         return response()->json([
             'token' => $token,
-            'user' => $user,
+            'user' => new UserResource($user),
         ]);
     }
 
@@ -72,7 +73,7 @@ class AuthController extends Controller
 
     public function me(Request $request)
     {
-        return response()->json($request->user());
+        return new UserResource($request->user());
     }
 
     public function updateProfile(Request $request)
@@ -89,7 +90,7 @@ class AuthController extends Controller
 
         return response()->json([
             'message' => 'Perfil actualizado',
-            'user' => $user
+            'user' => new UserResource($user),
         ]);
     }
 
