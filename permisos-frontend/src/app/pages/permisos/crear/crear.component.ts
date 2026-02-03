@@ -23,6 +23,7 @@ export class CrearComponent implements OnInit {
   form!: FormGroup;
   horasDisponibles = 0;
   error = '';
+  minFecha!: string;
 
   constructor(
     private fb: FormBuilder,
@@ -31,6 +32,8 @@ export class CrearComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.minFecha = new Date().toISOString().split('T')[0];
+
     this.form = this.fb.group({
       fecha: ['', [Validators.required, this.fechaNoPasada]],
       hora_inicio: ['', Validators.required],
@@ -39,6 +42,9 @@ export class CrearComponent implements OnInit {
     }, {
       validators: this.validarHorarioLaboral
     });
+    
+    this.form.get('fecha')?.setValue(this.minFecha);
+    this.form.get('fecha')?.updateValueAndValidity();
 
     this.cargarHorasDisponibles();
   }
@@ -53,22 +59,36 @@ export class CrearComponent implements OnInit {
   fechaNoPasada(control: AbstractControl): ValidationErrors | null {
     if (!control.value) return null;
 
-    const hoy = new Date();
-    hoy.setHours(0, 0, 0, 0);
-
-    const fecha = new Date(control.value);
-    return fecha < hoy ? { fechaPasada: true } : null;
+    const hoy = new Date().toISOString().split('T')[0];
+    return control.value < hoy ? { fechaPasada: true } : null;
   }
 
   /** Horario laboral 07:30 a 13:30 */
   validarHorarioLaboral(control: AbstractControl): ValidationErrors | null {
+    const fecha = control.get('fecha')?.value;
     const inicio = control.get('hora_inicio')?.value;
     const fin = control.get('hora_fin')?.value;
 
-    if (!inicio || !fin) return null;
+    if (!fecha || !inicio || !fin) return null;
 
+    // Rango laboral
     if (inicio < '07:30' || fin > '13:30' || fin <= inicio) {
       return { horarioInvalido: true };
+    }
+
+    const hoy = new Date();
+    const fechaSeleccionada = new Date(fecha);
+    fechaSeleccionada.setHours(0, 0, 0, 0);
+
+    const hoyNormalizado = new Date();
+    hoyNormalizado.setHours(0, 0, 0, 0);
+
+    if (fechaSeleccionada.getTime() === hoyNormalizado.getTime()) {
+      const horaActual = hoy.toTimeString().slice(0, 5);
+
+      if (inicio <= horaActual) {
+        return { horaPasadaHoy: true };
+      }
     }
 
     return null;

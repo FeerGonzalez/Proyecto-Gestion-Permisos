@@ -20,11 +20,11 @@
             <input
                 type="date"
                 formControlName="fecha"
-                class="w-full rounded-lg border px-4 py-2.5 text-sm
-                    focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                [attr.min]="minFecha"
+                class="date-input"
             />
             <p *ngIf="form.get('fecha')?.errors?.['fechaPasada']"
-                class="text-red-500 text-xs mt-1">
+                class="error-text">
                 La fecha no puede ser anterior a hoy
             </p>
             </div>
@@ -36,10 +36,9 @@
                     Hora inicio
                     </label>
                     <input
-                    type="time"
-                    formControlName="hora_inicio"
-                    class="w-full rounded-lg border px-4 py-2.5 text-sm
-                            focus:ring-2 focus:ring-indigo-500"
+                        type="time"
+                        formControlName="hora_inicio"
+                        class="time-input"
                     />
                 </div>
 
@@ -56,8 +55,12 @@
                 </div>
             </div>
 
-            <p *ngIf="form.errors?.['horarioInvalido']" class="text-red-500 text-xs">
+            <p *ngIf="form.errors?.['horarioInvalido']" class="error-text">
                 El horario debe estar entre 07:30 y 13:30 y ser válido
+            </p>
+
+            <p *ngIf="form.errors?.['horaPasadaHoy']" class="error-text">
+                La hora de inicio debe ser posterior a la hora actual
             </p>
 
             <!-- Motivo -->
@@ -73,7 +76,7 @@
                 ></textarea>
 
                 <p *ngIf="form.get('motivo')?.touched && form.get('motivo')?.invalid"
-                    class="text-red-500 text-xs mt-1">
+                    class="error-text">
                     El motivo debe tener al menos 5 caracteres
                 </p>
             </div>
@@ -93,9 +96,12 @@
                     Volver
                 </button>
 
-                <button type="submit" class="w-full bg-indigo-600 text-white py-2.5 rounded-lg
-                    font-semibold hover:bg-indigo-700 transition">
-                    Enviar solicitud
+                <button
+                    type="submit"
+                    [disabled]="form.invalid"
+                    class="btn-primary disabled:opacity-50"
+                >
+                    Solicitar permiso
                 </button>
             </div>
             

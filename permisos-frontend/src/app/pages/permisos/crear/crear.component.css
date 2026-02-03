@@ -131,3 +131,34 @@ button:active {
   cursor: pointer;
   text-decoration: none;
 }
+
+/* Fecha */
+.date-input {
+  max-width: 180px;
+}
+
+/* Horas */
+.time-input {
+  max-width: 140px;
+}
+
+/* Grid más aireado */
+.time-grid {
+  display: grid;
+  grid-template-columns: auto auto;
+  gap: 16px;
+}
+
+.error-text {
+  color: #dc2626;        /* rojo tipo Tailwind red-600 */
+  font-size: 0.75rem;
+  margin-top: 4px;
+}
+
+input.ng-invalid.ng-touched {
+  border: 1px solid #dc2626;
+}
+
+input.ng-valid.ng-touched {
+  border: 1px solid #16a34a; /* verde suave */
+}
