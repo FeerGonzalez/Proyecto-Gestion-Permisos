@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
 import { User } from '../models/user.model';
+import { ApiResponse } from '../models/api-response.model';
 
 @Injectable({ providedIn: 'root' })
 export class UserService {
@@ -10,8 +11,8 @@ export class UserService {
 
   constructor(private http: HttpClient) {}
 
-  getAll(): Observable<User[]> {
-    return this.http.get<User[]>(this.apiUrl);
+  getAll() {
+    return this.http.get<ApiResponse<User[]>>(this.apiUrl).pipe(map(res => res.data));
   }
 
   getById(id: number): Observable<User> {
@@ -31,7 +32,8 @@ export class UserService {
   }
 
   desactivar(id: number) {
-    return this.http.patch(`${this.apiUrl}/${id}/desactivar`, {});
+    return this.http
+      .patch<ApiResponse<User>>(`${this.apiUrl}/${id}/desactivar`, {})
   }
 
   activar(id: number) {
