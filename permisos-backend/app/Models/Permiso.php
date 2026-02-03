@@ -37,7 +37,7 @@ class Permiso extends Model
     //Helpers
     public function esPendiente(): bool
     {
-        return $this->estado === EstadoPermiso::PENDIENTE;
+        return $this->estadoRel?->nombre === EstadoPermiso::PENDIENTE;
     }
 
     public function setEstado(string $nombreEstado): void
@@ -48,7 +48,7 @@ class Permiso extends Model
 
     public function puedeSerAprobadoPor(User $user): bool
     {
-        return $this->usuario_id !== $user->id;
+        return $this->user_id !== $user->id;
     }
 
 }
