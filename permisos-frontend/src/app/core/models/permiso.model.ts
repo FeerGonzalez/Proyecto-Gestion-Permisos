@@ -7,9 +7,12 @@ export interface Permiso {
   hora_fin: string;
   horas_totales: number;
   motivo: string;
+
   estado: 'pendiente' | 'aprobado' | 'rechazado' | 'cancelado';
-  aprobado_por?: number | null;
-  examinado_por?: number | null;
+
   user_id: number;
   usuario?: User;
+
+  examinado_por?: number | null;
+  examinado_en?: string | null;
 }
