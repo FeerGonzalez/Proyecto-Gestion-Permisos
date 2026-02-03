@@ -30,6 +30,7 @@ Route::middleware('auth:sanctum')->prefix('permisos')->group(function () {
 Route::middleware(['auth:sanctum', 'role:supervisor,rrhh'])->prefix('permisos')->group(function () {
     Route::get('/', [PermisoController::class, 'index']);
     Route::get('/pendientes', [PermisoController::class, 'pendientes']);
+    Route::get('/gestionados', [PermisoController::class, 'gestionadosPorMi']);
     Route::post('/{permiso}/aprobar', [PermisoController::class, 'aprobar']);
     Route::post('/{permiso}/rechazar', [PermisoController::class, 'rechazar']);
 });
