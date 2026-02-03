@@ -84,10 +84,21 @@
             </p>
 
             <!-- Botón -->
-            <button type="submit" class="w-full bg-indigo-600 text-white py-2.5 rounded-lg
+            <div class="actions">
+                <button
+                    type="button"
+                    class="btn-secondary"
+                    (click)="volver()"
+                >
+                    Volver
+                </button>
+
+                <button type="submit" class="w-full bg-indigo-600 text-white py-2.5 rounded-lg
                     font-semibold hover:bg-indigo-700 transition">
-                Enviar solicitud
-            </button>
+                    Enviar solicitud
+                </button>
+            </div>
+            
         </form>
     </div>
 

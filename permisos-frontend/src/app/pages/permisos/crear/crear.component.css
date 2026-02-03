@@ -103,3 +103,31 @@ button:hover {
 button:active {
   transform: scale(0.98);
 }
+
+.btn-secondary {
+  width: 100%;
+  padding: 10px;
+  background: #616161;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.actions button,
+.actions a {
+  flex: 1;
+  text-align: center;
+  padding: 10px;
+  border-radius: 4px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+}

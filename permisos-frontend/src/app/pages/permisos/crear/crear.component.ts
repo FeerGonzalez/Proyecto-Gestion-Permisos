@@ -89,4 +89,8 @@ export class CrearComponent implements OnInit {
       }
     });
   }
+
+  volver() {
+    this.router.navigate(['/permisos']);
+  }
 }
