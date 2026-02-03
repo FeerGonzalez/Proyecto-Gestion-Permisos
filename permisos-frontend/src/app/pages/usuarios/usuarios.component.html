@@ -28,23 +28,31 @@
     </thead>
     <tbody>
       <tr *ngFor="let u of usuarios">
-        <td>{{ u.name }}</td>
-        <td>{{ u.email }}</td>
-        <td>
+        <td data-label="Nombre">
+          {{ u.name }}
+        </td>
+
+        <td data-label="Email">
+          {{ u.email }}
+        </td>
+
+        <td data-label="Rol">
           <span class="rol" [ngClass]="u.role">
             {{ u.role }}
           </span>
         </td>
-        <td>
-            <span
-                class="estado"
-                [class.activo]="!u.deleted_at"
-                [class.inactivo]="u.deleted_at"
-            >
-                {{ u.deleted_at ? 'Inactivo' : 'Activo' }}
-            </span>
+
+        <td data-label="Estado">
+          <span
+            class="estado"
+            [class.activo]="!u.deleted_at"
+            [class.inactivo]="u.deleted_at"
+          >
+            {{ u.deleted_at ? 'Inactivo' : 'Activo' }}
+          </span>
         </td>
-        <td>
+
+        <td data-label="Acciones">
           <label
             class="switch"
             *ngIf="!esUsuarioActual(u)"
