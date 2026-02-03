@@ -77,14 +77,20 @@ class AuthController extends Controller
 
     public function updateProfile(Request $request)
     {
+        $user = $request->user();
+
         $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . Auth::id(),
+            'email' => 'required|email|unique:users,email,' . $user->id,
         ]);
 
-        Auth::user()->update($request->only('name', 'email'));
+        $user->update([
+            'email' => $request->email,
+        ]);
 
-        return response()->json(['message' => 'Perfil actualizado']);
+        return response()->json([
+            'message' => 'Perfil actualizado',
+            'user' => $user
+        ]);
     }
 
     public function changePassword(Request $request)
