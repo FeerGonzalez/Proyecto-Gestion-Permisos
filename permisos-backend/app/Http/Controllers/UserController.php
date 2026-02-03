@@ -6,19 +6,22 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use App\Http\Resources\Dto\UserResource;
 
 class UserController extends Controller
 {
     public function index()
     {
-        return User::withTrashed()
+        $users = User::withTrashed()
             ->orderBy('name')
             ->get();
+
+        return UserResource::collection($users);
     }
 
     public function show(User $user)
     {
-        return $user;
+        return new UserResource($user);
     }
 
     public function store(Request $request)
@@ -37,7 +40,9 @@ class UserController extends Controller
             'role' => $request->role,
         ]);
 
-        return response()->json($user, 201);
+        return (new UserResource($user))
+            ->response()
+            ->setStatusCode(201);
     }
 
     public function update(Request $request, User $user)
@@ -50,18 +55,15 @@ class UserController extends Controller
 
         $user->update($request->only('name', 'email', 'role'));
 
-        return response()->json([
+        return (new UserResource($user))->additional([
             'message' => 'Usuario actualizado',
-            'user' => $user
         ]);
     }
 
     public function horasDisponibles()
     {
-        $user = auth()->user(); // usuario logueado
-
         return response()->json([
-            'horas_disponibles' => $user->horas_disponibles,
+            'horas_disponibles' => auth()->user()->horas_disponibles,
         ]);
     }
 
@@ -75,7 +77,9 @@ class UserController extends Controller
 
         $user->delete();
 
-        return response()->json(['message' => 'Usuario desactivado']);
+        return (new UserResource($user))->additional([
+            'message' => 'Usuario desactivado'
+        ]);
     }
 
     public function activar($id)
@@ -83,6 +87,8 @@ class UserController extends Controller
         $user = User::withTrashed()->findOrFail($id);
         $user->restore();
 
-        return response()->json(['message' => 'Usuario activado']);
+        return (new UserResource($user))->additional([
+            'message' => 'Usuario activado'
+        ]);
     }
 }
