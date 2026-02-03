@@ -50,15 +50,30 @@
   </div>
 
   <!-- DERECHA -->
-  <div class="nav-right">
-    <div class="user-info">
-      <span class="name">{{ u.name }}</span>
-      <span class="role">{{ u.role }}</span>
+  <div class="nav-right" (clickOutside)="userMenuOpen = false">
+
+    <button class="user-trigger" (click)="toggleUserMenu($event)">
+      <div class="user-info">
+        <span class="name">{{ u.name }}</span>
+        <span class="role">{{ u.role }}</span>
+      </div>
+      <span class="chevron">▾</span>
+    </button>
+
+    <div class="user-menu" *ngIf="userMenuOpen">
+      <a
+        routerLink="/perfil"
+        routerLinkActive="active"
+        (click)="closeUserMenu()"
+      >
+        Mi perfil
+      </a>
+
+      <button class="logout" (click)="logout()">
+        Salir
+      </button>
     </div>
 
-    <button class="logout" (click)="logout()">
-      Salir
-    </button>
   </div>
 
 </nav>

@@ -16,6 +16,7 @@ import { CommonModule } from '@angular/common';
 })
 export class NavbarComponent {
   menuOpen = false;
+  userMenuOpen = false;
 
   constructor(
     public auth: AuthService,
@@ -37,5 +38,14 @@ export class NavbarComponent {
         this.router.navigate(['/auth/login']);
       }
     });
+  }
+
+  toggleUserMenu(event: Event) {
+    event.stopPropagation();
+    this.userMenuOpen = !this.userMenuOpen;
+  }
+
+  closeUserMenu() {
+    this.userMenuOpen = false;
   }
 }
