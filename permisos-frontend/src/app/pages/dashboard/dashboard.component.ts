@@ -49,11 +49,13 @@ export class DashboardComponent implements OnInit {
       horas: this.permisoService.horasDisponibles()
     }).subscribe({
       next: ({ permisos, horas }) => {
-        this.permisos = permisos;
+        this.permisos = permisos.data;
         this.horasDisponibles = horas.horas_disponibles;
 
         this.calcularStats();
-        this.permisosPendientes = permisos.filter(p => p.estado === 'pendiente');
+        this.permisosPendientes = this.permisos.filter(
+          p => p.estado === 'pendiente'
+        );
 
         this.loading = false;
       },
