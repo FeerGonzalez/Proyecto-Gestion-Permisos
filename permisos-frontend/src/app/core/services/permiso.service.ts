@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Permiso } from '../models/permiso.model';
+import { ApiResponse } from '../models/api-response.model';
 
 @Injectable({ providedIn: 'root' })
 export class PermisoService {
@@ -10,8 +11,10 @@ export class PermisoService {
   constructor(private http: HttpClient) {}
 
   misPermisos() {
-    return this.http.get<Permiso[]>(`${this.apiUrl}/mis-permisos`);
-  }
+  return this.http.get<ApiResponse<Permiso[]>>(
+    `${this.apiUrl}/mis-permisos`
+  );
+}
 
   crear(data: any) {
     return this.http.post(this.apiUrl, data);
@@ -24,7 +27,8 @@ export class PermisoService {
   }
 
   pendientes() {
-    return this.http.get<Permiso[]>(`${this.apiUrl}/pendientes`);
+    return this.http
+      .get<{ data: Permiso[] }>(`${this.apiUrl}/pendientes`);
   }
 
   aprobar(id: number) {
