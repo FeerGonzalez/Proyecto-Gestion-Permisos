@@ -2,19 +2,22 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\Dto\PermisoResource;
+use App\Models\EstadoPermiso;
 use App\Models\Permiso;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use App\Models\EstadoPermiso;
 
 class PermisoController extends Controller
 {
     public function index()
     {
-        return Permiso::with('usuario', 'examinadoPor')
+        $permisos = Permiso::with('usuario', 'examinadoPor')
             ->orderBy('created_at', 'desc')
             ->get();
+
+        return PermisoResource::collection($permisos);
     }
 
     public function store(Request $request){
@@ -35,23 +38,35 @@ class PermisoController extends Controller
             'hora_fin' => $request->hora_fin,
             'horas_totales' => $data['horas_totales'],
             'motivo' => $request->motivo,
-            'estado' => 'pendiente',
+            'estado_id' => EstadoPermiso::where('nombre', EstadoPermiso::PENDIENTE)->first()->id,
         ]);
 
-        return response()->json($permiso, 201);
+        return (new PermisoResource($permiso->load('usuario')))
+            ->response()
+            ->setStatusCode(201);
     }
 
 
     public function misPermisos()
     {
-        return Auth::user()->permisos;
+        $permisos = Auth::user()
+            ->permisos()
+            ->with('estadoRel')
+            ->orderByDesc('created_at')
+            ->get();
+
+        return PermisoResource::collection($permisos);
     }
 
     public function pendientes()
     {
-        return Permiso::with('usuario')
-            ->where('estado', 'pendiente')
+        $permisos = Permiso::with('usuario')
+            ->whereHas('estadoRel', function ($q) {
+                $q->where('nombre', EstadoPermiso::PENDIENTE);
+            })
             ->get();
+
+        return PermisoResource::collection($permisos);
     }
 
     public function aprobar(Permiso $permiso)
@@ -60,13 +75,13 @@ class PermisoController extends Controller
             return response()->json(['error' => 'El permiso ya fue resuelto'], 422);
         }
 
-        $user = $permiso->usuario;
-
         if (! $permiso->puedeSerAprobadoPor(Auth::user())) {
             return response()->json([
                 'error' => 'No puedes aprobar tu propio permiso'
             ], 422);
         }
+
+        $user = $permiso->usuario;
 
         if (!$user->tieneHorasSuficientes($permiso->horas_totales)) {
             return response()->json(['error' => 'El empleado ya no tiene horas suficientes'], 422);
@@ -79,7 +94,9 @@ class PermisoController extends Controller
 
         $user->descontarHoras($permiso->horas_totales);
 
-        return response()->json([
+        return (new PermisoResource(
+            $permiso->load('usuario', 'examinadoPor')
+        ))->additional([
             'message' => 'Permiso aprobado correctamente',
             'horas_restantes' => $user->horas_disponibles,
         ]);
@@ -96,7 +113,11 @@ class PermisoController extends Controller
         $permiso->examinado_en = now();
         $permiso->save();
 
-        return response()->json(['message' => 'Permiso rechazado']);
+        return (new PermisoResource(
+            $permiso->load('usuario', 'examinadoPor')
+        ))->additional([
+            'message' => 'Permiso rechazado correctamente'
+        ]);
     }
 
     public function show(Permiso $permiso)
@@ -106,7 +127,9 @@ class PermisoController extends Controller
             return response()->json(['error' => 'No autorizado'], 403);
         }
 
-        return $permiso->load('usuario', 'examinadoPor');
+        return new PermisoResource(
+            $permiso->load('usuario', 'examinadoPor')
+        );
     }
 
     public function update(Request $request, Permiso $permiso)
@@ -115,7 +138,7 @@ class PermisoController extends Controller
             return response()->json(['error' => 'No autorizado'], 403);
         }
 
-        if ($permiso->estado !== 'pendiente') {
+        if (!$permiso->esPendiente()) {
             return response()->json([
                 'error' => 'Solo se pueden editar permisos pendientes'
             ], 422);
@@ -143,30 +166,10 @@ class PermisoController extends Controller
             'motivo' => $request->motivo,
         ]);
 
-        return response()->json([
-            'message' => 'Permiso actualizado correctamente',
-            'permiso' => $permiso
-        ]);
-    }
-
-
-
-    public function destroy(Permiso $permiso)
-    {
-        if ($permiso->user_id !== Auth::id()) {
-            return response()->json(['error' => 'No autorizado'], 403);
-        }
-
-        if ($permiso->estado !== 'pendiente') {
-            return response()->json([
-                'error' => 'No se puede eliminar un permiso ya resuelto'
-            ], 422);
-        }
-
-        $permiso->delete();
-
-        return response()->json([
-            'message' => 'Permiso eliminado correctamente'
+        return (new PermisoResource(
+            $permiso->fresh()->load('usuario')
+        ))->additional([
+            'message' => 'Permiso actualizado correctamente'
         ]);
     }
 
@@ -186,9 +189,10 @@ class PermisoController extends Controller
         $permiso->examinado_en = now();
         $permiso->save();
 
-        return response()->json([
-            'message' => 'Permiso cancelado correctamente',
-            'permiso' => $permiso
+        return (new PermisoResource(
+            $permiso->load('usuario')
+        ))->additional([
+            'message' => 'Permiso cancelado correctamente'
         ]);
     }
 
