@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Users;
 
+use App\Rules\PasswordRules;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreUserRequest extends FormRequest
@@ -24,8 +25,9 @@ class StoreUserRequest extends FormRequest
         return [
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
-            'password' => 'required|min:8',
+            'password' => PasswordRules::withoutConfirmation(),
             'role' => 'required|in:empleado,supervisor,rrhh',
         ];
     }
 }
+
