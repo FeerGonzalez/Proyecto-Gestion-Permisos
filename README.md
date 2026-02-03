@@ -17,12 +17,12 @@ Un “Sistema de Gestión de Permisos de Salida” - una aplicación web complet
 <h2>Backend:</h2>
 
 <h3>Arquitectura del sistema</h3>
-El backend está desarrollado como una API RESTful utilizando Laravel, siguiendo una arquitectura MVC orientada a servicios.
+El backend está desarrollado como una API RESTful utilizando Laravel, siguiendo una arquitectura Cliente-Servidor orientada a servicios.
 La aplicación está diseñada como un backend desacoplado, sin vistas, pensado para ser consumido por un frontend SPA.
 
 <h3>Separación por Capas Lógicas</h3>
 
-La estructura del backend separa claramente:
+La estructura del backend utiliza una arquitectura en capas que separa claramente:
 
   - Requests: validación y autorización de entrada
   - Controllers: orquestación del flujo
@@ -43,8 +43,8 @@ Además, se aplican reglas de autorización basadas en la pertenencia del recurs
 
 <h3>Patrones de Diseño Utilizados</h3>
 
-MVC (Model–View–Controller)
-  - Organiza la aplicación en tres capas: Modelos que representan datos y reglas de negocio, Controllers que manejan la lógica de aplicación, y Views que serían la presentación (en este proyecto se omiten por ser una API).
+Arquitectura Cliente–Servidor (API REST)
+  - La aplicación sigue una arquitectura Cliente–Servidor, donde el backend funciona como un servidor de API RESTful y el frontend (SPA en Angular) actúa como cliente consumidor de la API. El backend no renderiza vistas ni maneja lógica de presentación, sino que expone endpoints que devuelven respuestas JSON, desacoplados completamente del frontend.
 
 RESTful API
   - Diseño de la API basado en recursos, utilizando verbos HTTP semánticos y códigos de estado estándar, para permitir consumo consistente por clientes externos.
