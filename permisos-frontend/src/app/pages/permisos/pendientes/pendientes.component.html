@@ -35,57 +35,50 @@
             *ngFor="let permiso of permisos"
             class="border-b hover:bg-gray-50 transition"
           >
-            <!-- Empleado -->
-            <td class="py-3">
+            <td class="py-3" data-label="Empleado">
               {{ permiso.usuario?.name || '—' }}
             </td>
 
-            <!-- Fecha -->
-            <td class="py-3">
+            <td class="py-3" data-label="Fecha">
               {{ permiso.fecha | date:'dd/MM/yyyy' }}
             </td>
 
-            <!-- Horario -->
-            <td class="py-3">
+            <td class="py-3" data-label="Horario">
               {{ permiso.hora_inicio }} - {{ permiso.hora_fin }}
             </td>
 
-            <!-- Horas -->
-            <td class="py-3 text-center">
+            <td class="py-3 text-center" data-label="Horas">
               {{ permiso.horas_totales | number:'1.1-2' }}
             </td>
 
-            <!-- Motivo -->
-            <td class="py-3 text-gray-700">
+            <td class="py-3 text-gray-700" data-label="Motivo">
               {{ permiso.motivo }}
             </td>
 
-            <!-- Acciones -->
-            <td class="py-3 text-center space-x-2"
-              *ngIf="puedeEvaluar(permiso)">
-
-              <button
-                (click)="aprobar(permiso.id)"
-                class="btn-approve"
-              >
+            <td
+              class="py-3 text-center space-x-2"
+              data-label="Acciones"
+              *ngIf="puedeEvaluar(permiso)"
+            >
+              <button (click)="aprobar(permiso.id)" class="btn-approve">
                 Aprobar
               </button>
 
-              <button
-                (click)="rechazar(permiso.id)"
-                class="btn-reject"
-              >
+              <button (click)="rechazar(permiso.id)" class="btn-reject">
                 Rechazar
               </button>
-
             </td>
 
-            <td class="py-3 text-center"
-              *ngIf="!puedeEvaluar(permiso)">
+            <td
+              class="py-3 text-center"
+              data-label="Acciones"
+              *ngIf="!puedeEvaluar(permiso)"
+            >
               <span class="badge-own">
                 No podés evaluar tu propio permiso
               </span>
             </td>
+
           </tr>
         </tbody>
       </table>
