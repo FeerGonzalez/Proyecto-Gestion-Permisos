@@ -7,17 +7,19 @@ use App\Http\Requests\Permisos\UpdatePermisoRequest;
 use App\Http\Resources\Dto\PermisoResource;
 use App\Models\EstadoPermiso;
 use App\Models\Permiso;
-use Carbon\Carbon;
+use App\Services\PermisoService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class PermisoController extends Controller
 {
+    private PermisoService $permisoService;
+
     public function index()
     {
         $permisos = Permiso::with('usuario', 'examinadoPor', 'estadoRel')
             ->orderBy('created_at', 'desc')
-            ->get();
+            ->paginate(15);
 
         return PermisoResource::collection($permisos);
     }
@@ -26,7 +28,7 @@ class PermisoController extends Controller
         $inicio = $request->getInicio();
         $fin = $request->getFin();
 
-        if (!$this->validarHorarioLaboral($inicio, $fin)) {
+        if (!$this->permisoService->validarHorarioLaboral($inicio, $fin)) {
             return response()->json([
                 'error' => 'El permiso debe estar dentro del horario laboral (07:30 a 13:30)'
             ], 422);
@@ -66,7 +68,7 @@ class PermisoController extends Controller
             ->permisos()
             ->with('estadoRel')
             ->orderByDesc('created_at')
-            ->get();
+            ->paginate(15);
 
         return PermisoResource::collection($permisos);
     }
@@ -74,64 +76,47 @@ class PermisoController extends Controller
     public function pendientes()
     {
         $permisos = Permiso::with('usuario', 'estadoRel')
-            ->whereHas('estadoRel', function ($q) {
-                $q->where('nombre', EstadoPermiso::PENDIENTE);
-            })
-            ->get();
+            ->pendientes()
+            ->orderByDesc('created_at')
+            ->paginate(15);
 
         return PermisoResource::collection($permisos);
     }
 
     public function aprobar(Permiso $permiso)
     {
-        if (!$permiso->esPendiente()) {
-            return response()->json(['error' => 'El permiso ya fue resuelto'], 422);
-        }
+        try {
+            $permiso = $this->permisoService->aprobar($permiso, Auth::user());
 
-        if (! $permiso->puedeSerAprobadoPor(Auth::user())) {
+            return (new PermisoResource($permiso))->additional([
+                'message' => 'Permiso aprobado correctamente',
+                'horas_restantes' => $permiso->usuario->horas_disponibles,
+            ]);
+
+        } catch (\DomainException | \InvalidArgumentException $e) {
             return response()->json([
-                'error' => 'No puedes aprobar tu propio permiso'
+                'error' => $e->getMessage()
             ], 422);
         }
-
-        $user = $permiso->usuario;
-
-        if (!$user->tieneHorasSuficientes($permiso->horas_totales)) {
-            return response()->json(['error' => 'El empleado ya no tiene horas suficientes'], 422);
-        }
-
-        $permiso->setEstado(EstadoPermiso::APROBADO);
-        $permiso->examinado_por = Auth::id();
-        $permiso->examinado_en = now();
-        $permiso->save();
-
-        $user->descontarHoras($permiso->horas_totales);
-
-        return (new PermisoResource(
-            $permiso->load('usuario', 'examinadoPor')
-        ))->additional([
-            'message' => 'Permiso aprobado correctamente',
-            'horas_restantes' => $user->horas_disponibles,
-        ]);
     }
+
 
     public function rechazar(Request $request, Permiso $permiso)
     {
-        if (!$permiso->esPendiente()) {
-            return response()->json(['error' => 'El permiso ya fue resuelto'], 422);
+        try {
+            $permiso = $this->permisoService->rechazar($permiso, Auth::user());
+
+            return (new PermisoResource($permiso))->additional([
+                'message' => 'Permiso rechazado correctamente'
+            ]);
+
+        } catch (\DomainException | \InvalidArgumentException $e) {
+            return response()->json([
+                'error' => $e->getMessage()
+            ], 422);
         }
-
-        $permiso->setEstado(EstadoPermiso::RECHAZADO);
-        $permiso->examinado_por = Auth::id();
-        $permiso->examinado_en = now();
-        $permiso->save();
-
-        return (new PermisoResource(
-            $permiso->load('usuario', 'examinadoPor')
-        ))->additional([
-            'message' => 'Permiso rechazado correctamente'
-        ]);
     }
+
 
     public function show(Permiso $permiso)
     {
@@ -150,7 +135,7 @@ class PermisoController extends Controller
         $inicio = $request->getInicio();
         $fin = $request->getFin();
 
-        if (!$this->validarHorarioLaboral($inicio, $fin)) {
+        if (!$this->permisoService->validarHorarioLaboral($inicio, $fin)) {
             return response()->json([
                 'error' => 'El permiso debe estar dentro del horario laboral (07:30 a 13:30)'
             ], 422);
@@ -185,51 +170,28 @@ class PermisoController extends Controller
 
     public function gestionadosPorMi()
     {
-        $userId = Auth::id();
-
         $permisos = Permiso::with('usuario', 'estadoRel')
-            ->where('examinado_por', $userId)
-            ->whereHas('estadoRel', function ($q) {
-                $q->whereIn('nombre', [
-                    EstadoPermiso::APROBADO,
-                    EstadoPermiso::RECHAZADO,
-                ]);
-            })
+            ->examinadoPorUsuario(Auth::id())
+            ->gestionados()
             ->orderByDesc('examinado_en')
-            ->get();
+            ->paginate(15);
 
         return PermisoResource::collection($permisos);
     }
 
     public function cancelar(Permiso $permiso)
     {
-        // Solo el dueño del permiso puede cancelarlo
-        if ($permiso->user_id !== Auth::id()) {
-            return response()->json(['error' => 'No autorizado'], 403);
+        try {
+            $permiso = $this->permisoService->cancelar($permiso, Auth::user());
+
+            return (new PermisoResource($permiso))->additional([
+                'message' => 'Permiso cancelado correctamente'
+            ]);
+
+        } catch (\DomainException | \InvalidArgumentException $e) {
+            return response()->json([
+                'error' => $e->getMessage()
+            ], 422);
         }
-
-        if (!$permiso->esPendiente()) {
-            return response()->json(['error' => 'Solo se pueden cancelar permisos pendientes'], 422);
-        }
-
-        $permiso->setEstado(EstadoPermiso::CANCELADO);
-        $permiso->examinado_por = Auth::id(); // el propio empleado
-        $permiso->examinado_en = now();
-        $permiso->save();
-
-        return (new PermisoResource(
-            $permiso->load('usuario')
-        ))->additional([
-            'message' => 'Permiso cancelado correctamente'
-        ]);
-    }
-
-    private function validarHorarioLaboral(Carbon $inicio, Carbon $fin)
-    {
-        $inicioLaboral = Carbon::createFromTime(7, 30);
-        $finLaboral    = Carbon::createFromTime(13, 30);
-
-        return $inicio->greaterThanOrEqualTo($inicioLaboral)
-            && $fin->lessThanOrEqualTo($finLaboral);
     }
 }
