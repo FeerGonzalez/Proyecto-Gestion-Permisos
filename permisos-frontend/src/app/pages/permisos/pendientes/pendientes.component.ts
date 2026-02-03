@@ -41,7 +41,7 @@ export class PendientesComponent implements OnInit {
 
     this.permisoService.pendientes().subscribe({
       next: res => {
-        this.permisos = res;
+        this.permisos = res.data;
         this.loading = false;
       },
       error: () => {
