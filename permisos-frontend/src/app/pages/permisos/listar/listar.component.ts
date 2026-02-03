@@ -4,6 +4,7 @@ import { RouterLink } from '@angular/router';
 import { PermisoService } from '../../../core/services/permiso.service';
 import { Permiso } from '../../../core/models/permiso.model';
 import { AuthService } from '../../../core/services/auth.service';
+import { ApiResponse } from '../../../core/models/api-response.model';
 
 @Component({
   selector: 'app-listar',
@@ -39,8 +40,8 @@ export class ListarComponent implements OnInit {
     this.error = '';
 
     this.permisoService.misPermisos().subscribe({
-      next: res => {
-        this.permisos = res;
+      next: (res: ApiResponse<Permiso[]>) => {
+        this.permisos = res.data;
         this.loading = false;
       },
       error: () => {
