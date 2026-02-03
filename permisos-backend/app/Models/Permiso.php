@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
 
 class Permiso extends Model
 {
@@ -34,6 +35,34 @@ class Permiso extends Model
         return $this->belongsTo(EstadoPermiso::class, 'estado_id');
     }
 
+    // Query Scopes
+    public function scopePendientes(Builder $query): Builder
+    {
+        return $query->whereHas('estadoRel', function ($q) {
+            $q->where('nombre', EstadoPermiso::PENDIENTE);
+        });
+    }
+
+    public function scopeGestionados(Builder $query): Builder
+    {
+        return $query->whereHas('estadoRel', function ($q) {
+            $q->whereIn('nombre', [
+                EstadoPermiso::APROBADO,
+                EstadoPermiso::RECHAZADO,
+            ]);
+        });
+    }
+
+    public function scopeDelUsuario(Builder $query, int $userId): Builder
+    {
+        return $query->where('user_id', $userId);
+    }
+
+    public function scopeExaminadoPorUsuario(Builder $query, int $userId): Builder
+    {
+        return $query->where('examinado_por', $userId);
+    }
+
     //Helpers
     public function esPendiente(): bool
     {
@@ -52,3 +81,4 @@ class Permiso extends Model
     }
 
 }
+
