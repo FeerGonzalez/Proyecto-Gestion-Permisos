@@ -20,6 +20,15 @@ Un “Sistema de Gestión de Permisos de Salida” - una aplicación web complet
 El backend está desarrollado como una API RESTful utilizando Laravel, siguiendo una arquitectura MVC orientada a servicios.
 La aplicación está diseñada como un backend desacoplado, sin vistas, pensado para ser consumido por un frontend SPA.
 
+<h3>Separación por Capas Lógicas</h3>
+
+La estructura del backend separa claramente:
+
+  - Requests: validación y autorización de entrada
+  - Controllers: orquestación del flujo
+  - Models: reglas de negocio y persistencia
+  - Resources (DTOs): representación de salida
+
 <h3>Autenticación y Autorización</h3>
 
 La autenticación se implementa mediante Laravel Sanctum, utilizando tokens personales y un enfoque stateless.
@@ -64,6 +73,12 @@ State-driven Workflow
 Consistent JSON Error Handling
   - Todas las respuestas de error siguen un formato JSON uniforme, con mensajes claros y códigos HTTP apropiados, mejorando la interacción con el frontend.
 
+Form Request Pattern
+  - La validación y autorización de datos de entrada se gestionan mediante Form Requests, permitiendo encapsular las reglas de validación y permisos en clases dedicadas. Manteniendo  los controllers livianos y favorece una separación clara de responsabilidades.
+
+Data Transfer Object (DTO) / API Resources
+  - La aplicación utiliza API Resources como DTOs para definir de forma explícita la estructura de los datos expuestos por la API. Esta capa de transformación desacopla los modelos internos del formato de respuesta, mejora la seguridad y garantiza consistencia en las respuestas JSON.
+
 <h3>Gestión de Permisos</h3>
 
 El módulo de permisos implementa un flujo de negocio basado en estados, con validaciones de horario laboral, disponibilidad de 	horas y control de aprobación por roles autorizados.
@@ -73,7 +88,7 @@ El módulo de permisos implementa un flujo de negocio basado en estados, con val
 Grafico representativo de la estructura interna del proyecto
 <br></br>
 
-<img width="911" height="842" alt="BackEnd Diagrama" src="https://github.com/user-attachments/assets/fc7191d2-e126-497a-bbc9-ab4883cc99d8" />
+<img width="1051" height="841" alt="BackEnd Diagrama" src="https://github.com/user-attachments/assets/a8ed2324-8c62-4b95-b57c-616686c1db19" />
 
 <br></br>
 <h3>Observaciones</h3>
