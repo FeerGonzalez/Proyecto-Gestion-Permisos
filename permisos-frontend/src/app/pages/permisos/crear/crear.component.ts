@@ -46,6 +46,10 @@ export class CrearComponent implements OnInit {
     this.form.get('fecha')?.setValue(this.minFecha);
     this.form.get('fecha')?.updateValueAndValidity();
 
+    this.form.get('fecha')?.valueChanges.subscribe(() => {
+      this.form.get('hora_inicio')?.updateValueAndValidity();
+    });
+
     this.cargarHorasDisponibles();
   }
 
@@ -65,26 +69,26 @@ export class CrearComponent implements OnInit {
 
   /** Horario laboral 07:30 a 13:30 */
   validarHorarioLaboral(control: AbstractControl): ValidationErrors | null {
-    const fecha = control.get('fecha')?.value;
-    const inicio = control.get('hora_inicio')?.value;
+    const fecha = control.get('fecha')?.value; // Formato "YYYY-MM-DD"
+    const inicio = control.get('hora_inicio')?.value; // Formato "HH:mm"
     const fin = control.get('hora_fin')?.value;
 
     if (!fecha || !inicio || !fin) return null;
 
-    // Rango laboral
     if (inicio < '07:30' || fin > '13:30' || fin <= inicio) {
       return { horarioInvalido: true };
     }
 
     const hoy = new Date();
-    const fechaSeleccionada = new Date(fecha);
-    fechaSeleccionada.setHours(0, 0, 0, 0);
+    
+    const anio = hoy.getFullYear();
+    const mes = String(hoy.getMonth() + 1).padStart(2, '0');
+    const dia = String(hoy.getDate()).padStart(2, '0');
+    const hoyString = `${anio}-${mes}-${dia}`;
 
-    const hoyNormalizado = new Date();
-    hoyNormalizado.setHours(0, 0, 0, 0);
-
-    if (fechaSeleccionada.getTime() === hoyNormalizado.getTime()) {
-      const horaActual = hoy.toTimeString().slice(0, 5);
+    if (fecha === hoyString) {
+      const horaActual = hoy.getHours().toString().padStart(2, '0') + ':' + 
+                        hoy.getMinutes().toString().padStart(2, '0');
 
       if (inicio <= horaActual) {
         return { horaPasadaHoy: true };
