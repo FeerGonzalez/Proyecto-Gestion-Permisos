@@ -23,7 +23,7 @@ class PermisoResource extends JsonResource
             'motivo' => $this->motivo,
 
             // Estado EXPUESTO como string
-            'estado' => $this->estadoRel->nombre,
+            'estado' => $this->estadoRel?->nombre,
 
             // Auditoría
             'examinado_por' => $this->examinado_por,
