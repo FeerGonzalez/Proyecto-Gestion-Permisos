@@ -18,6 +18,8 @@ export class DashboardComponent implements OnInit {
   permisos: Permiso[] = [];
   permisosPendientes: Permiso[] = [];
 
+
+
   horasDisponibles = 0;
 
   stats = {
@@ -28,6 +30,13 @@ export class DashboardComponent implements OnInit {
     cancelados: 0
   };
 
+  statsGestion = {
+    aprobados: 0,
+    rechazados: 0
+  };
+
+  esSupervisorORRHH = false;
+
   loading = false;
   error = '';
 
@@ -37,6 +46,7 @@ export class DashboardComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.esSupervisorORRHH = this.authService.hasRole(['supervisor', 'rrhh']);
     this.cargarDashboard();
   }
 
@@ -44,18 +54,39 @@ export class DashboardComponent implements OnInit {
     this.loading = true;
     this.error = '';
 
-    forkJoin({
+    interface DashboardForkResult {
+      permisos: { data: Permiso[] };
+      horas: { horas_disponibles: number };
+      gestionados?: { data: Permiso[] };
+    }
+
+    const requests: {
+      permisos: ReturnType<PermisoService['misPermisos']>;
+      horas: ReturnType<PermisoService['horasDisponibles']>;
+      gestionados?: ReturnType<PermisoService['gestionadosPorMi']>;
+    } = {
       permisos: this.permisoService.misPermisos(),
       horas: this.permisoService.horasDisponibles()
-    }).subscribe({
-      next: ({ permisos, horas }) => {
-        this.permisos = permisos.data;
-        this.horasDisponibles = horas.horas_disponibles;
+    };
+
+    if (this.esSupervisorORRHH) {
+      requests.gestionados = this.permisoService.gestionadosPorMi();
+    }
+
+    forkJoin(requests).subscribe({
+      next: (res: DashboardForkResult) => {
+        this.permisos = res.permisos.data;
+        this.horasDisponibles = res.horas.horas_disponibles;
 
         this.calcularStats();
+
         this.permisosPendientes = this.permisos.filter(
           p => p.estado === 'pendiente'
         );
+
+        if (res.gestionados) {
+          this.calcularStatsGestion(res.gestionados.data);
+        }
 
         this.loading = false;
       },
@@ -86,6 +117,14 @@ export class DashboardComponent implements OnInit {
     ).length;
   }
 
+  private calcularStatsGestion(permisos: Permiso[]) {
+    this.statsGestion.aprobados = permisos.filter(
+      p => p.estado === 'aprobado'
+    ).length;
 
+    this.statsGestion.rechazados = permisos.filter(
+      p => p.estado === 'rechazado'
+    ).length;
+  }
   
 }

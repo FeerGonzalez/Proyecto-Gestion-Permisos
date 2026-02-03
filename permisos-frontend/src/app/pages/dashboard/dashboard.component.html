@@ -48,6 +48,24 @@
 
   </div>
 
+  <!-- Estadísticas de gestión -->
+  <div
+    class="stats gestion"
+    *ngIf="esSupervisorORRHH"
+  >
+    <h2>Permisos gestionados</h2>
+
+    <div class="stat aprobado">
+      <span>Aprobados</span>
+      <strong>{{ statsGestion.aprobados }}</strong>
+    </div>
+
+    <div class="stat rechazado">
+      <span>Rechazados</span>
+      <strong>{{ statsGestion.rechazados }}</strong>
+    </div>
+  </div>
+
   <!-- Estados -->
   <div *ngIf="loading" class="estado">
     Cargando información...
