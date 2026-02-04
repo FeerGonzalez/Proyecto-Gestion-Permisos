@@ -84,6 +84,25 @@
       </table>
     </div>
 
+    <!-- Paginación -->
+    <div class="pagination" *ngIf="lastPage > 1">
+        <button
+            (click)="irAPagina(currentPage - 1)"
+            [disabled]="currentPage === 1 || loading">
+            « Anterior
+        </button>
+
+        <span>
+            Página {{ currentPage }} de {{ lastPage }}
+        </span>
+
+        <button
+            (click)="irAPagina(currentPage + 1)"
+            [disabled]="currentPage === lastPage || loading">
+            Siguiente »
+        </button>
+    </div>
+
     <!-- Vacío -->
     <div
       *ngIf="!loading && permisos.length === 0"

@@ -17,6 +17,8 @@ export class PendientesComponent implements OnInit {
   loading = false;
   error = '';
   usuarioId!: number;
+  currentPage = 1;
+  lastPage = 1;
 
   constructor(
     private permisoService: PermisoService,
@@ -35,13 +37,15 @@ export class PendientesComponent implements OnInit {
     this.cargarPendientes();
   }
 
-  cargarPendientes() {
+  cargarPendientes(page: number = 1) {
     this.loading = true;
     this.error = '';
 
-    this.permisoService.pendientes().subscribe({
+    this.permisoService.pendientes(page).subscribe({
       next: res => {
         this.permisos = res.data;
+        this.currentPage = res.meta.current_page;
+        this.lastPage = res.meta.last_page;
         this.loading = false;
       },
       error: () => {
@@ -50,6 +54,7 @@ export class PendientesComponent implements OnInit {
       }
     });
   }
+
 
   aprobar(id: number) {
     if (!this.puedeAcceder()) return;
@@ -91,6 +96,11 @@ export class PendientesComponent implements OnInit {
 
   puedeEvaluar(permiso: Permiso): boolean {
     return permiso.user_id !== this.usuarioId;
+  }
+
+  irAPagina(page: number) {
+    if (page < 1 || page > this.lastPage) return;
+    this.cargarPendientes(page);
   }
 
 }
