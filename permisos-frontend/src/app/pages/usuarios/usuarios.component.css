@@ -165,6 +165,27 @@ input:checked + .slider:before {
     margin-right: 1rem;
   }
 
+  /* Paginación */
+  .pagination {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+
+  .pagination button {
+    padding: 0.4rem 0.8rem;
+    border-radius: 6px;
+    border: 1px solid #ddd;
+    background: white;
+    cursor: pointer;
+  }
+
+  .pagination button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
   /* Alineaciones finas */
   .estado,
   .rol {

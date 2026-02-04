@@ -4,6 +4,7 @@ import { Router, RouterLink } from '@angular/router';
 import { UserService } from '../../core/services/user.service';
 import { AuthService } from '../../core/services/auth.service';
 import { User } from '../../core/models/user.model';
+import { PaginationMeta } from '../../core/models/paginated-response.model';
 
 @Component({
   selector: 'app-usuarios',
@@ -18,6 +19,9 @@ export class UsuariosComponent implements OnInit {
   loading = true;
   errorMessage = '';
   usuarioActual!: User;
+  currentPage = 1;
+  lastPage = 1;
+  total = 0;
 
   constructor(
     private userService: UserService,
@@ -30,11 +34,16 @@ export class UsuariosComponent implements OnInit {
     this.cargarUsuarios();
   }
 
-  cargarUsuarios() {
+  cargarUsuarios(page: number = 1) {
     this.loading = true;
-    this.userService.getAll().subscribe({
-      next: users => {
-        this.usuarios = users;
+    this.errorMessage = '';
+
+    this.userService.getAll(page).subscribe({
+      next: res => {
+        this.usuarios = res.data;
+        this.currentPage = res.meta.current_page;
+        this.lastPage = res.meta.last_page;
+        this.total = res.meta.total;
         this.loading = false;
       },
       error: () => {
@@ -70,5 +79,10 @@ export class UsuariosComponent implements OnInit {
 
   esUsuarioActual(u: User): boolean {
     return this.usuarioActual?.id === u.id;
+  }
+
+  irAPagina(page: number) {
+    if (page < 1 || page > this.lastPage) return;
+    this.cargarUsuarios(page);
   }
 }
