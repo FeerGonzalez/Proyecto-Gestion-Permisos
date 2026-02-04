@@ -68,7 +68,6 @@ class PermisoService
             throw new \DomainException('El permiso debe estar dentro del horario laboral (07:30 a 13:30)');
         }
 
-        // Calculate available hours considering the current permission's hours
         $horasDisponiblesReales = $user->horas_disponibles + $permiso->horas_totales;
 
         if ($horasNuevas > $horasDisponiblesReales) {
@@ -103,7 +102,6 @@ class PermisoService
         }
 
         return DB::transaction(function () use ($permiso, $approver) {
-            // Pessimistic lock: prevent race condition on hour deduction
             $user = User::lockForUpdate()->find($permiso->user_id);
 
             if (!$user->tieneHorasSuficientes($permiso->horas_totales)) {
