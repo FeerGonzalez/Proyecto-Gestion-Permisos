@@ -17,8 +17,8 @@ class PermisoResource extends JsonResource
         return [
             'id' => $this->id,
             'fecha' => $this->fecha,
-            'hora_inicio' => $this->hora_inicio,
-            'hora_fin' => $this->hora_fin,
+            'hora_inicio' => substr($this->hora_inicio, 0, 5),
+            'hora_fin' => substr($this->hora_fin, 0, 5),
             'horas_totales' => $this->horas_totales,
             'motivo' => $this->motivo,
 
