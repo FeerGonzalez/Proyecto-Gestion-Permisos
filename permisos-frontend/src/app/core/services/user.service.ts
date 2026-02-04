@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { map, Observable } from 'rxjs';
 import { User } from '../models/user.model';
 import { ApiResponse } from '../models/api-response.model';
+import { PaginatedResponse } from '../models/paginated-response.model';
 
 @Injectable({ providedIn: 'root' })
 export class UserService {
@@ -11,8 +12,10 @@ export class UserService {
 
   constructor(private http: HttpClient) {}
 
-  getAll() {
-    return this.http.get<ApiResponse<User[]>>(this.apiUrl).pipe(map(res => res.data));
+  getAll(page: number = 1) {
+    return this.http.get<PaginatedResponse<User>>(
+      `${this.apiUrl}?page=${page}`
+    );
   }
 
   getById(id: number): Observable<User> {
