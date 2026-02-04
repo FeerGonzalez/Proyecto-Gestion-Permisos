@@ -19,6 +19,9 @@ export class ListarComponent implements OnInit {
   loading = false;
   error = '';
   userId!: number;
+  currentPage = 1;
+  lastPage = 1;
+  total = 0;
 
   constructor(
     private permisoService: PermisoService,
@@ -35,13 +38,16 @@ export class ListarComponent implements OnInit {
     this.cargarPermisos();
   }
 
-  cargarPermisos() {
+  cargarPermisos(page: number = 1) {
     this.loading = true;
     this.error = '';
 
-    this.permisoService.misPermisos().subscribe({
-      next: (res: ApiResponse<Permiso[]>) => {
+    this.permisoService.misPermisos(page).subscribe({
+      next: (res) => {
         this.permisos = res.data;
+        this.currentPage = res.meta.current_page;
+        this.lastPage = res.meta.last_page;
+        this.total = res.meta.total;
         this.loading = false;
       },
       error: () => {
@@ -61,12 +67,17 @@ export class ListarComponent implements OnInit {
     this.permisoService.cancelar(id).subscribe({
       next: () => {
         this.loading = false;
-        this.cargarPermisos();
+        this.cargarPermisos(this.currentPage);
       },
       error: () => {
         this.loading = false;
         this.error = 'No se pudo cancelar el permiso';
       }
     });
+  }
+
+  irAPagina(page: number) {
+    if (page < 1 || page > this.lastPage) return;
+    this.cargarPermisos(page);
   }
 }
