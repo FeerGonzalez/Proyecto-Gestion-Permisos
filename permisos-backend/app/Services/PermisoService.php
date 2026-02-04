@@ -6,13 +6,88 @@ use App\Models\EstadoPermiso;
 use App\Models\Permiso;
 use App\Models\User;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class PermisoService
 {
     /**
-     * Approves a permission request with transaction safety.
+     * Creates a new permission request.
+     *
+     * @throws \DomainException if outside working hours or insufficient hours
+     */
+    public function crearPermiso(User $user, array $data): Permiso
+    {
+        $inicio = Carbon::createFromFormat('H:i', $data['hora_inicio']);
+        $fin = Carbon::createFromFormat('H:i', $data['hora_fin']);
+        $horas = $inicio->floatDiffInHours($fin);
+
+        if (!$this->validarHorarioLaboral($inicio, $fin)) {
+            throw new \DomainException('El permiso debe estar dentro del horario laboral (07:30 a 13:30)');
+        }
+
+        if (!$user->tieneHorasSuficientes($horas)) {
+            throw new \DomainException(
+                "No tenés horas suficientes. Disponibles: {$user->horas_disponibles}, Solicitadas: {$horas}"
+            );
+        }
+
+        $permiso = Permiso::create([
+            'user_id' => $user->id,
+            'fecha' => $data['fecha'],
+            'hora_inicio' => $data['hora_inicio'],
+            'hora_fin' => $data['hora_fin'],
+            'horas_totales' => $horas,
+            'motivo' => $data['motivo'],
+            'estado_id' => EstadoPermiso::pendiente()->id,
+        ]);
+
+        return $permiso->load('usuario', 'estadoRel');
+    }
+
+    /**
+     * Updates an existing pending permission.
+     *
+     * @throws \DomainException if outside working hours or insufficient hours
+     * @throws \InvalidArgumentException if permission is not pending or not owned
+     */
+    public function actualizarPermiso(Permiso $permiso, User $user, array $data): Permiso
+    {
+        if ($permiso->user_id !== $user->id) {
+            throw new \InvalidArgumentException('Solo puedes modificar tus propios permisos');
+        }
+
+        if (!$permiso->esPendiente()) {
+            throw new \InvalidArgumentException('Solo se pueden modificar permisos pendientes');
+        }
+
+        $inicio = Carbon::createFromFormat('H:i', $data['hora_inicio']);
+        $fin = Carbon::createFromFormat('H:i', $data['hora_fin']);
+        $horasNuevas = $inicio->floatDiffInHours($fin);
+
+        if (!$this->validarHorarioLaboral($inicio, $fin)) {
+            throw new \DomainException('El permiso debe estar dentro del horario laboral (07:30 a 13:30)');
+        }
+
+        // Calculate available hours considering the current permission's hours
+        $horasDisponiblesReales = $user->horas_disponibles + $permiso->horas_totales;
+
+        if ($horasNuevas > $horasDisponiblesReales) {
+            throw new \DomainException('No tenés horas suficientes para modificar este permiso');
+        }
+
+        $permiso->update([
+            'fecha' => $data['fecha'],
+            'hora_inicio' => $data['hora_inicio'],
+            'hora_fin' => $data['hora_fin'],
+            'horas_totales' => $horasNuevas,
+            'motivo' => $data['motivo'],
+        ]);
+
+        return $permiso->fresh()->load('usuario', 'estadoRel');
+    }
+
+    /**
+     * Approves a permission request with transaction safety and pessimistic locking.
      *
      * @throws \InvalidArgumentException if permission is not pending
      * @throws \DomainException if approver is the permission owner or hours are insufficient
@@ -27,22 +102,23 @@ class PermisoService
             throw new \DomainException('No puedes aprobar tu propio permiso');
         }
 
-        $user = $permiso->usuario;
+        return DB::transaction(function () use ($permiso, $approver) {
+            // Pessimistic lock: prevent race condition on hour deduction
+            $user = User::lockForUpdate()->find($permiso->user_id);
 
-        if (!$user->tieneHorasSuficientes($permiso->horas_totales)) {
-            throw new \DomainException('El empleado ya no tiene horas suficientes');
-        }
+            if (!$user->tieneHorasSuficientes($permiso->horas_totales)) {
+                throw new \DomainException('El empleado ya no tiene horas suficientes');
+            }
 
-        DB::transaction(function () use ($permiso, $user, $approver) {
             $permiso->setEstado(EstadoPermiso::APROBADO);
             $permiso->examinado_por = $approver->id;
             $permiso->examinado_en = now();
             $permiso->save();
 
             $user->descontarHoras($permiso->horas_totales);
-        });
 
-        return $permiso->fresh()->load('usuario', 'examinadoPor', 'estadoRel');
+            return $permiso->fresh()->load('usuario', 'examinadoPor', 'estadoRel');
+        });
     }
 
     /**
@@ -107,3 +183,4 @@ class PermisoService
             && $fin->lessThanOrEqualTo($finLaboral);
     }
 }
+
