@@ -16,7 +16,7 @@ class UserController extends Controller
     {
         $users = User::withTrashed()
             ->orderBy('name')
-            ->get();
+            ->paginate(10);
 
         return UserResource::collection($users);
     }
