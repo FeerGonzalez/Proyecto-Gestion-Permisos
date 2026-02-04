@@ -47,8 +47,12 @@ export class PerfilComponent implements OnInit {
         this.loading = false;
       },
       error: err => {
-        this.error = err.error?.error || 'Error al actualizar email';
         this.loading = false;
+        if (err.status === 422 && err.error?.errors) {
+          this.error = this.formatLaravelErrors(err.error.errors);
+        } else {
+          this.error = err.error?.message || 'Error al actualizar email';
+        }
       }
     });
   }
@@ -67,10 +71,20 @@ export class PerfilComponent implements OnInit {
         this.loading = false;
       },
       error: err => {
-        this.error = err.error?.error || 'Error al cambiar contraseña';
         this.loading = false;
+        if (err.status === 422 && err.error?.errors) {
+          this.error = this.formatLaravelErrors(err.error.errors);
+        } else {
+          this.error = err.error?.message || 'Error al cambiar contraseña';
+        }
       }
     });
+  }
+
+  private formatLaravelErrors(errors: any): string {
+    return Object.values(errors)
+      .flat()
+      .join(' ');
   }
 
 }
