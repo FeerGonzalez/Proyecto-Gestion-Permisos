@@ -22,12 +22,31 @@ La aplicación está diseñada como un backend desacoplado, sin vistas, pensado 
 
 <h3>Separación por Capas Lógicas</h3>
 
-La estructura del backend utiliza una arquitectura en capas que separa claramente:
+El backend está diseñado siguiendo una arquitectura en capas, que promueve el bajo acoplamiento, la mantenibilidad y la claridad de responsabilidades. Cada capa cumple un rol bien definido:
 
-  - Requests: validación y autorización de entrada
-  - Controllers: orquestación del flujo
-  - Models: reglas de negocio y persistencia
-  - Resources (DTOs): representación de salida
+-  Controllers
+
+      Orquestan el flujo de la aplicación. Reciben las solicitudes HTTP, delegan la lógica de negocio a los Services y devuelven las respuestas apropiadas.
+
+-  Form Requests
+  
+    Encargadas de la validación y autorización de los datos de entrada. Mantienen los controladores limpios y centralizan las reglas de validación.
+
+-  Services
+
+    Contienen la lógica de negocio principal del sistema. Permiten reutilizar comportamiento, facilitan el testing y evitan sobrecargar controladores o modelos.
+
+-  Rules (Validaciones Personalizadas)
+
+    Implementan validaciones complejas o específicas del dominio que no encajan en reglas simples, asegurando coherencia y expresividad en las validaciones.
+
+-  Models (Eloquent ORM)
+
+    Representan las entidades del dominio y gestionan la persistencia de datos, relaciones y comportamientos propios del modelo.
+
+-  Resources (DTOs)
+
+    Definen la representación de salida de los datos hacia el cliente, garantizando una API consistente y desacoplada de la estructura interna de los modelos.
 
 <h3>Autenticación y Autorización</h3>
 
@@ -35,9 +54,9 @@ La autenticación se implementa mediante Laravel Sanctum, utilizando tokens pers
 
 El sistema implementa Role-Based Access Control (RBAC) mediante middleware, definiendo roles como: 
     
-    Empleado 
-    Supervisor 
-    RRHH
+-  Empleado 
+-  Supervisor
+-  RRHH
 
 Además, se aplican reglas de autorización basadas en la pertenencia del recurso.
 
@@ -88,7 +107,7 @@ El módulo de permisos implementa un flujo de negocio basado en estados, con val
 Grafico representativo de la estructura interna del proyecto
 <br></br>
 
-<img width="1051" height="841" alt="BackEnd Diagrama" src="https://github.com/user-attachments/assets/a8ed2324-8c62-4b95-b57c-616686c1db19" />
+<img width="891" height="1041" alt="BackEnd Diagrama" src="https://github.com/user-attachments/assets/c9202f13-d391-467e-a211-d5874bb292ac" />
 
 <br></br>
 <h3>Observaciones</h3>
@@ -153,6 +172,8 @@ La estructura del proyecto se basa en:
   - guards -> Encargado de la protección de las rutas.
     
   - models -> Encargado de representar las clases del dominio.
+    - models/api-response.ts -> Es encargado de tratar el Resource que llega del BackEnd.
+    - models/paginated-response.ts -> Es el encargado de contemplar la paginación proveniente del Backend.
   
   - services -> Encargado de realizar llamadas a los Endpoints del BackEnd.
   
