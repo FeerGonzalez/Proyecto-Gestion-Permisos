@@ -131,9 +131,17 @@ Antes de levantar el proyecto, asegurate de tener instalado:
 
 Una vez clonado el proyecto:
   - En la raiz del proyecto
+    - Crear el archivo de entorno
+      
+          cp .env.example .env
+      
     - Construir y levantar los contenedores
 
           docker compose up -d --build
+
+    - Instalar las dependencias
+    
+          docker exec -it permisos_api composer install
       
     - Generar la key de Laravel
 
