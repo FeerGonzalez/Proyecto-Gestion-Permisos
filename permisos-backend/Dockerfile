@@ -1,11 +1,8 @@
-FROM ubuntu:latest
-LABEL authors="Gonzalez Fernando"
-
-ENTRYPOINT ["top", "-b"]
-
 FROM php:8.4-fpm
 
-# Instalar dependencias del sistema
+LABEL authors="Gonzalez Fernando"
+
+# Dependencias del sistema
 RUN apt-get update && apt-get install -y \
     git \
     unzip \
@@ -14,21 +11,19 @@ RUN apt-get update && apt-get install -y \
     zip \
     && docker-php-ext-install pdo pdo_pgsql zip
 
-# Instalar Composer
+# Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# Setear directorio de trabajo
 WORKDIR /var/www
 
-# Copiar proyecto
+# Copiar solo composer para cache
+COPY composer.json composer.lock ./
+
+RUN composer install --no-dev --optimize-autoloader || true
+
+# Copiar el resto del proyecto
 COPY . .
 
-# Instalar dependencias de Laravel
-RUN composer install --no-dev --optimize-autoloader
-
-# Permisos
-RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
-
-EXPOSE 9000
+RUN chown -R www-data:www-data storage bootstrap/cache
 
 CMD ["php-fpm"]
