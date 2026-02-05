@@ -125,32 +125,31 @@ Grafico representativo de la estructura interna del proyecto
 
 Antes de levantar el proyecto, asegurate de tener instalado:
 
-  - Docker y Docker Compose
-  - PHP 8.1 o superior
-  - Composer
-  - Git
+  - Docker
+  - Docker Compose
+  - Git (Opcional)
 
 Una vez clonado el proyecto:
   - En la raiz del proyecto
-    - Instalar dependencias de PHP:
+    - Construir y levantar los contenedores
 
-          composer install
-
-    - Para levantar los contenedores:
-
-          docker compose up -d
+          docker compose up -d --build
       
-    - Ejecutar las migraciones:
-  
-          php artisan migrate
-      
-    - Ejecutar los seeders:
+    - Generar la key de Laravel
 
-          php artisan db:seed
+          docker exec -it permisos_api php artisan key:generate
 
-    - Ejecutar el proyecto:
-      
-          php artisan serve
+    - Ejecutar migraciones y seeders
+
+          docker exec -it permisos_api php artisan migrate --seed
+
+    - Limpiar cache (Recomendado)
+   
+          docker exec -it permisos_api php artisan optimize:clear
+
+    - Ejecutar test (Opcional)
+   
+          docker exec -it permisos_api php artisan test
 
 <h2>FrontEnd:</h2>
 
