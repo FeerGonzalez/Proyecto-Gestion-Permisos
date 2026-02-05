@@ -27,5 +27,17 @@ class ChangePasswordRequest extends FormRequest
             'password' => PasswordRules::defaults(),
         ];
     }
+
+    public function messages(): array
+    {
+        return [
+            'password.required' => 'La contraseña es obligatoria.',
+            'password.confirmed' => 'Las contraseñas no coinciden.',
+            'password.min' => 'La contraseña debe tener al menos 8 caracteres.',
+            'password.letters' => 'La contraseña debe contener letras.',
+            'password.mixed' => 'La contraseña debe tener mayúsculas y minúsculas.',
+            'password.numbers' => 'La contraseña debe contener números.',
+        ];
+    }
 }
 
